@@ -7,7 +7,7 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = outofsight
 OS = Linux
-PYTHON_INTERPRETER = python  # python3 for Linux
+PYTHON_INTERPRETER = python3  # python3 for Linux
 PYTHON_VERSION = 3.9.5
 
 
@@ -22,6 +22,9 @@ store_requirements:
 install_requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	ifeq (Linux,$(OS))
+		apt-get update && apt-get install tesseract-ocr -y
+	endif
 
 ## Set up python interpreter environment
 create_conda_env:
