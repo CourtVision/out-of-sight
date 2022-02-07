@@ -1,6 +1,9 @@
 ## build as: docker build -t outsight-image .
 ## run as: docker run --rm --name outsight-container outsight-image -w all - d False
 ## docker exec -t -i outsight-container  /bin/bash
+## docker cp container_id:./bar/foo.txt .
+## docker cp foo.txt mycontainer:/foo.txt
+
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
 # FROM python:3.9-slim
