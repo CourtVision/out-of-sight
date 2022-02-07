@@ -1,5 +1,9 @@
+## build as: docker build -t outsight-image .
+## run as: docker run --rm outsight-image  -w all - d False
+
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.9-slim
+# FROM python:3.9-slim
+FROM continuumio/miniconda3
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -8,15 +12,17 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install pip requirements
-COPY requirements.txt .
+COPY /outsight/requirements.txt .
 COPY Makefile .
+RUN apt-get update && apt-get install make
 RUN make install_requirements
 RUN make create_conda_env
-RUN make start_conda
 
 WORKDIR /app
 COPY . /app
 
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-ENTRYPOINT ["python","./app.py"]
+# Make RUN commands use the new environment
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+SHELL ["conda", "run", "-n", "outofsight", "/bin/bash", "-c"]
 
+ENTRYPOINT ["conda", "run", "-n", "outofsight", "python", "app.py"]
