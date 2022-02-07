@@ -16,14 +16,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install pip requirements
+COPY . /
 COPY /outsight/requirements.txt .
-COPY Makefile .
+
 RUN apt-get update && apt-get install make
 RUN make install_requirements
 RUN make create_conda_env
-
-WORKDIR /app
-COPY . /app
 
 # Make RUN commands use the new environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
