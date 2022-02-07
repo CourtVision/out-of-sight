@@ -6,7 +6,7 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = outofsight
-OS = Windows
+OS = Linux
 PYTHON_INTERPRETER = python  # python3 for Linux
 PYTHON_VERSION = 3.9.5
 
@@ -16,7 +16,7 @@ PYTHON_VERSION = 3.9.5
 #################################################################################
 
 ## Install Python Dependencies
-strore_requirements:
+store_requirements:
     pip list --format=freeze > requirements.txt
 
 install_requirements:
@@ -27,7 +27,7 @@ install_requirements:
 create_conda_env:
 	ifeq (Windows,$(OS))
 		conda init 
-	ifeq (Windows,$(OS))
+	ifeq (Linux,$(OS))
 		conda init bash
 	endif
 	conda config --append channels conda-forge
