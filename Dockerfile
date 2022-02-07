@@ -1,5 +1,6 @@
 ## build as: docker build -t outsight-image .
-## run as: docker run --rm outsight-image  -w all - d False
+## run as: docker run --rm --name outsight-container outsight-image -w all - d False
+## docker exec -t -i outsight-container  /bin/bash
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
 # FROM python:3.9-slim
@@ -25,4 +26,4 @@ COPY . /app
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
 SHELL ["conda", "run", "-n", "outofsight", "/bin/bash", "-c"]
 
-ENTRYPOINT ["conda", "run", "-n", "outofsight", "python", "app.py"]
+ENTRYPOINT ["conda", "run", "-n", "outofsight", "python", "/outsight/app.py"]
