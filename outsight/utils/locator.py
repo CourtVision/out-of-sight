@@ -3,7 +3,7 @@ from skimage.segmentation import clear_border
 import numpy as np
 import imutils
 import cv2
-from display import debug_imshow
+from utils.display import debug_imshow
 
 
 

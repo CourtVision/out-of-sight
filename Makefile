@@ -17,11 +17,14 @@ PYTHON_VERSION = 3.9.5
 
 ## Install Python Dependencies
 store_requirements:
-	pip list --format=freeze > requirements.txt
+# pip list --format=freeze > requirements.txt
+	conda env export --name $(PROJECT_NAME) --no-builds --file $(PROJECT_NAME)/conda_env.yml
 
 install_requirements:
 ifeq ($(OS), Linux)
-	apt-get update && apt-get install tesseract-ocr -y
+	apt-get update
+	apt-get install tesseract-ocr -y
+	apt-get install ffmpeg libsm6 libxext6  -y
     #$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
     #$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 endif
@@ -34,13 +37,14 @@ else
 	conda init bash
 endif
 	conda config --append channels conda-forge
-	conda create --name $(PROJECT_NAME) --file requirements.txt python=$(PYTHON_VERSION)
+	conda env create --name $(PROJECT_NAME) --file conda_env.yml python=$(PYTHON_VERSION)
 
 # Activate project conda environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
 # start_conda:
 #	conda init bash
 #	conda activate $(PROJECT_NAME)
+# pip install opencv-contrib-python==4.5.5.62
 
 ## Delete all compiled Python files
 clean:

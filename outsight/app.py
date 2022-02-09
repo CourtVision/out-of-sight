@@ -35,6 +35,7 @@ args = vars(ap.parse_args())
 config = parse_configuration(os.path.dirname(os.path.realpath(__file__))+"/CONIFG.yaml")
 input = config.get("INPUT")
 
+
 # Setup workflow #
 
 # DO get training data and save it

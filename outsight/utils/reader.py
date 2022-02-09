@@ -1,5 +1,5 @@
 import pytesseract
-from display import debug_imshow
+from utils.display import debug_imshow
 
 class OCR:
 	def __init__(self, minAR=4, maxAR=5, debug=False):

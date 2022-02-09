@@ -1,5 +1,5 @@
 ## build: docker build -f Dockerfile -t outsight-image .
-## run: docker run -v io-volume:/./io --name outsight-container outsight-image -w all -d False
+## run: docker run -v io-volume:/./io --name outsight-container outsight-image 
 ## debug: docker run -i -t  --name outsight-container outsight-image bash
 ## docker start  && docker exec -t -i outsight-container bash  OR  docker start -i  outsight-container
 
@@ -34,4 +34,5 @@ RUN make create_conda_env
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
 SHELL ["conda", "run", "-n", "outofsight", "/bin/bash", "-c"]
 
-ENTRYPOINT ["conda", "run", "-n", "outofsight", "python", "/outsight/app.py"]
+# ENTRYPOINT []
+CMD ["conda", "run", "-n", "outofsight", "python", "/outsight/app.py"]

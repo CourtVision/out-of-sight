@@ -1,2 +1,2 @@
-INPUT: ./photos_input
-OUTPUT: ./output
+INPUT: ./io/photos_input
+OUTPUT: ./io/output
