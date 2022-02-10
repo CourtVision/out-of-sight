@@ -59,6 +59,7 @@ dependencies:
     - pytesseract==0.3.8
     - python-daemon==2.3.0
     - pywavelets==1.2.0
+    - pyyaml==6.0
     - scikit-image==0.19.1
     - scipy==1.7.3
     - tenacity==6.3.1

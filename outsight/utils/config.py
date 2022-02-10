@@ -1,5 +1,6 @@
 import os
 import yaml
+from pathlib import Path
 
 def parse_configuration(path):   
     """
@@ -11,17 +12,19 @@ def parse_configuration(path):
 
     Returns:
     ------------
-        None:  
+        config: dict  
 
     """
-    
-    is_file = os.path.isfile(path)
-    is_yaml = str(path.split(".")[-1]).lower() == "yaml"   
-    if is_file and is_yaml: 
-        print("CONFIG file found and read.")  
+    is_yaml = str(str(path).split(".")[-1]).lower() == "yaml"   
+    if path.exists() and is_yaml:
+
+        print("CONFIG.yaml file found and read.")  
         with open(path, 'r') as stream:
             config = yaml.safe_load(stream)
     #       if config:
     #          for option, value in config.items():
     #             os.environ[str(option)] = str(value)   
         return config   #None
+    
+    else:
+        print("No valid CONFIG file found")

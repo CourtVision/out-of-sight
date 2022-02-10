@@ -123,6 +123,6 @@ class PlateLocator:
 
 		# return a 2-tuple of the license plate ROI and the contour
 		# associated with it
-		return (roi, lpCnt)
+		return roi, lpCnt
 
 			

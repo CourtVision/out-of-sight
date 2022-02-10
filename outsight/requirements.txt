@@ -32,6 +32,7 @@ python-dateutil==2.8.1
 pytz==2020.1
 PyWavelets==1.2.0
 # pywin32==228
+pyyaml==6.0
 requests==2.25.1
 # ruamel-yaml-conda==0.15.100
 scikit-image==0.19.1

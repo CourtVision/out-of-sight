@@ -7,7 +7,7 @@ def _cleanup_text(text):
 	return "".join([c if ord(c) < 128 else "" for c in text]).strip()
 
 
-def ocrout(lpText, lpCnt, image, debug=False):
+def ocrout(lpText, lpCnt, image, outpath, debug=False):
 
     if lpText is not None and lpCnt is not None:
         # fit a rotated bounding box to the license plate contour and
@@ -23,7 +23,7 @@ def ocrout(lpText, lpCnt, image, debug=False):
         print("[INFO] {}".format(lpText))
         if debug:
             imshow("Output ANPR", image)
-        imwrite("OCRout.jpg", image)
+        imwrite(outpath, image)
         waitKey(0)
 
     else:
