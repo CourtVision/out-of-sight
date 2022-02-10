@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # VSC
-.vscode/
+.vscode
 
 # data
 data/
+*.jpg
