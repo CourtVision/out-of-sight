@@ -133,4 +133,7 @@ dmypy.json
 
 # data
 data/
+io/
 *.jpg
+*.jpeg
+**/*.jpg
