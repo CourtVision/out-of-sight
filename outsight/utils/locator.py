@@ -6,7 +6,6 @@ import cv2
 from utils.display import debug_imshow
 
 
-
 class PlateLocator:
 	def __init__(self, minAR=4, maxAR=5, debug=False):
 		# store the minimum and maximum rectangular aspect ratio
@@ -26,7 +25,7 @@ class PlateLocator:
 		rectKern = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
 		blackhat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, rectKern)
 		if self.debug:
-			debug_imshow("Blackhat", blackhat)
+			debug_imshow(title="Blackhat", image=blackhat)
 
 		# next, find regions in the image that are light
 		# closing holes in image, then threshold
@@ -35,7 +34,7 @@ class PlateLocator:
 		light = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, squareKern)
 		light = cv2.threshold(light, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 		if self.debug:
-			debug_imshow("Light Regions", light)
+			debug_imshow(title="Light Regions", image=light)
 
 		# compute the Scharr gradient representation of the blackhat
 		# Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate
@@ -50,7 +49,7 @@ class PlateLocator:
 		gradX = 255 * ((gradX - minVal) / (maxVal - minVal))
 		gradX = gradX.astype("uint8")
 		if self.debug:
-			debug_imshow("Scharr", gradX)
+			debug_imshow(title="Scharr", image=gradX)
 
 		# blur the gradient representation, applying a closing
 		# operation, and threshold the image using Otsu's method
@@ -58,14 +57,14 @@ class PlateLocator:
 		gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKern)
 		thresh = cv2.threshold(gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 		if self.debug:
-			debug_imshow("Grad Thresh", thresh)
+			debug_imshow(title="Grad Thresh", image=thresh)
 
 		# perform a series of erosions and dilations to clean up the
 		# thresholded image
 		thresh = cv2.erode(thresh, None, iterations=2)
 		thresh = cv2.dilate(thresh, None, iterations=2)
 		if self.debug:
-			debug_imshow("Grad Erode/Dilate", thresh)
+			debug_imshow(title="Grad Erode/Dilate", image=thresh)
 
 		# take the bitwise AND between the threshold result and the
 		# light regions of the image
@@ -75,7 +74,7 @@ class PlateLocator:
 		thresh = cv2.dilate(thresh, None, iterations=2)
 		thresh = cv2.erode(thresh, None, iterations=1)
 		if self.debug:
-			debug_imshow("Final", thresh, waitKey=True)
+			debug_imshow(title="Final", image=thresh, waitKey=True)
 
 		# find contours in the thresholded image and sort them by
 		# their size in descending order, keeping only the largest
@@ -117,12 +116,12 @@ class PlateLocator:
 				# from the loop early since we have found the license
 				# plate region
 				if self.debug:
-					debug_imshow("License Plate", licensePlate)
-					debug_imshow("ROI", roi, waitKey=True)
+					debug_imshow(title="License Plate", image=licensePlate)
+					debug_imshow(title="ROI", image=roi, waitKey=True)
 				break
 
 		# return a 2-tuple of the license plate ROI and the contour
 		# associated with it
-		return roi, lpCnt
+		return (roi, lpCnt)
 
 			

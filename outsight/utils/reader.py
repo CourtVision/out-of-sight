@@ -1,7 +1,7 @@
 import pytesseract
 from utils.display import debug_imshow
 
-class PlateOCR:
+class PlateReader:
 	def __init__(self, minAR=4, maxAR=5, psm=7, oem=2, debug=False):
 		# store the minimum and maximum rectangular aspect ratio
 		# values along with whether or not we are in debug mode
@@ -21,7 +21,7 @@ class PlateOCR:
 			# return the built options string
 			return options
 
-	def runOCR(self, roi, lpCnt):
+	def runOCR(self, roi):
 		# initialize the license plate text
 		lpText = None
 		if roi is not None:
@@ -32,4 +32,4 @@ class PlateOCR:
 				debug_imshow("License Plate", roi)
 		# return a 2-tuple of the OCR'd license plate text along with
 		# the contour associated with the license plate region
-		return lpText, lpCnt
+		return lpText
