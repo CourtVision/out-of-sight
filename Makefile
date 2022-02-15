@@ -6,6 +6,7 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = outofsight
+PACKAGE_NAME = outsight
 OS = Linux
 PYTHON_INTERPRETER = python3  # python3 for Linux
 PYTHON_VERSION = 3.9.5
@@ -37,7 +38,7 @@ else
 	conda init bash
 endif
 	conda config --append channels conda-forge
-	conda env create --name $(PROJECT_NAME) --file conda_env.yml python=$(PYTHON_VERSION)
+	cd $(PACKAGE_NAME) && conda env create --name $(PROJECT_NAME) --file conda_env.yml python=$(PYTHON_VERSION)
 
 # Activate project conda environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
