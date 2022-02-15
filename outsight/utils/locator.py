@@ -87,8 +87,9 @@ class PlateLocator:
 		return candidates, gray
 
 
-	def run_best_candidate(self, gray, candidates, clearBorder=False):
+	def run_best_candidate(self, image, gray, candidates, clearBorder=False):
 		# initialize the license plate contour and ROI
+		image = imutils.resize(image, width=600)
 		lpCnt = None
 		roi = None
 		# loop over the license plate candidate contours
@@ -104,6 +105,7 @@ class PlateLocator:
 				# license plate from the grayscale image and then
 				# threshold it
 				lpCnt = c
+				licensePlate_col = image[y:y + h, x:x + w]
 				licensePlate = gray[y:y + h, x:x + w]
 				roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 				
@@ -122,6 +124,6 @@ class PlateLocator:
 
 		# return a 2-tuple of the license plate ROI and the contour
 		# associated with it
-		return (roi, lpCnt)
+		return (roi, lpCnt, licensePlate_col)
 
 			
