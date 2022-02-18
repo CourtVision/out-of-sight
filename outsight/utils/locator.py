@@ -4,22 +4,44 @@ import numpy as np
 import imutils
 import cv2
 from utils.display import debug_imshow
+import logging
+logger = logging.getLogger(__name__)
 
 
 class PlateLocator:
-	def __init__(self, minAR=4, maxAR=5, debug=False):
-		# store the minimum and maximum rectangular aspect ratio
-		# values along with whether or not we are in debug mode
+	def __init__(self, minAR: int = 4, maxAR: int = 5, debug: bool = False):
+		"""
+		Store the minimum and maximum rectangular aspect ratio
+		values along with whether or not we are in debug mode
+
+		Args:
+		------------
+			minAR:int minimum rectangular aspect ratio
+			maxAR:int maximum rectangular aspect ratio
+
+		Returns:
+		------------
+			None
+		"""
 		self.minAR = minAR
 		self.maxAR = maxAR
 		self.debug = debug
 	
-	def run_candidates(self, image, keep=5):
-		# perform a blackhat morphological operation that will allow
-		# us to reveal dark regions (i.e., text) on light backgrounds
-		# difference between the closing of the input image and input image.
-		# (i.e., the license plate itself)
-		# keeps so many sorted license plate candidate contours
+	def run_candidates(self, image, keep: int = 5):
+		"""
+		Performs a blackhat morphological operation that will allow
+		us to reveal dark regions (i.e., text) on light backgrounds
+		difference between the closing of the input image and input image.
+		(i.e., the license plate itself) keeps so many sorted license plate candidate contours
+
+		Args:
+		------------
+			image:img Location of the CONFIG file.
+
+		Returns:
+		------------
+			config:dict  
+		"""
 		image = imutils.resize(image, width=600)
 		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 		rectKern = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
@@ -42,8 +64,7 @@ class PlateLocator:
 		# The Sobel Operator is a discrete differentiation operator. It computes an approximation of the gradient of an image intensity function.
 		# kernerl=-1 means 3x3.
 
-		gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F,
-			dx=1, dy=0, ksize=-1)
+		gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
 		gradX = np.absolute(gradX)
 		(minVal, maxVal) = (np.min(gradX), np.max(gradX))
 		gradX = 255 * ((gradX - minVal) / (maxVal - minVal))
@@ -77,17 +98,34 @@ class PlateLocator:
 			debug_imshow(title="Final", image=thresh, waitKey=True)
 
 		# find contours in the thresholded image and sort them by
-		# their size in descending order, keeping only the largest
-		# ones
+		# their size in descending order, keeping only the largest ones
 		cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		cnts = imutils.grab_contours(cnts)
 		candidates = sorted(cnts, key=cv2.contourArea, reverse=True)[:keep]
 
 		# return the list of contours
+		logger.info("Searching for candidate locations done.")  
+		print("Searching for candidate locations done.")
 		return candidates, gray
 
 
-	def run_best_candidate(self, image, gray, candidates, clearBorder=False):
+	def run_best_candidate(self, image, gray, candidates, clearBorder:bool = False):
+		"""
+		Gets the best position for the license plate out of candidates if they match the aspect ratio.
+
+		Args:
+		------------
+			image:img Original image.
+			gray:img Grayscale original image
+			candidates:array Candidate contours
+			clearBorder:bool Option if to clear boarders
+
+		Returns:
+		------------
+			roi:array Location of the plate
+			lpCnt:array Corresponding countours
+			licensePlate_col:img image of the plate
+		"""
 		# initialize the license plate contour and ROI
 		image = imutils.resize(image, width=600)
 		lpCnt = None
@@ -102,8 +140,7 @@ class PlateLocator:
 			# check to see if the aspect ratio is rectangular
 			if ar >= self.minAR and ar <= self.maxAR:
 				# store the license plate contour and extract the
-				# license plate from the grayscale image and then
-				# threshold it
+				# license plate from the grayscale image and then threshold it
 				lpCnt = c
 				licensePlate_col = image[y:y + h, x:x + w]
 				licensePlate = gray[y:y + h, x:x + w]
@@ -115,15 +152,13 @@ class PlateLocator:
 				if clearBorder:
 					roi = clear_border(roi)
 				# display any debugging information and then break
-				# from the loop early since we have found the license
-				# plate region
+				# from the loop early since we have found the license plate region
 				if self.debug:
 					debug_imshow(title="License Plate", image=licensePlate)
 					debug_imshow(title="ROI", image=roi, waitKey=True)
 				break
 
-		# return a 2-tuple of the license plate ROI and the contour
-		# associated with it
+		# return a 3-tuple of the license plate, ROI and the contour associated with it
+		logger.info("Searching for the location done.")  
+		print("Searching for the location done.")
 		return (roi, lpCnt, licensePlate_col)
-
-			

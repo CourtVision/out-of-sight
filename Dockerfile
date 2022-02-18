@@ -1,16 +1,20 @@
-## build: docker build -f Dockerfile -t outsight-image .
-## run: docker run -v io-volume:/./io --name outsight-container outsight-image -w all -d False
+## build: docker build -f Dockerfile -t outsight-image --no-cache .
+## run: docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug
 ## debug: docker run -i -t  --name outsight-container outsight-image bash
 ## docker start  && docker exec -t -i outsight-container bash  OR  docker start -i  outsight-container
 
 ## Volumes 
-## docker volume create io-volume
-## docker volume inspect io-volume
-## Windows: \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
+# docker volume create io-volume
+# docker volume inspect io-volume
+# Windows: \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
 
-## docker cp container_id:./bar/foo.txt .
-## docker cp foo.txt mycontainer:/foo.txt
+##Copy
+# docker cp container_id:./bar/foo.txt .
+# docker cp foo.txt mycontainer:/foo.txt
 
+## Cleanup
+# docker system prune
+# docker system df
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
 # FROM python:3.9-slim
@@ -27,7 +31,7 @@ COPY . /
 COPY /outsight/conda_env.yml .
 
 RUN apt-get update && apt-get install make
-RUN make install_requirements
+RUN make install_os_requirements
 RUN make create_conda_env
 
 # Make RUN commands use the new environment

@@ -1,13 +1,14 @@
 import pandas as pd
 from Levenshtein import distance
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class PlateSearcher():
     """
     Class for the regex layer.
     
     Args:
+    ------------
         method (str): Comparision method, Default=Levenshtein. 
         method (int): Level of deviation (due to OCRing problems) to accept license plate. 
     """
@@ -17,26 +18,38 @@ class PlateSearcher():
         self.threshold = threshold
         self.output_search = output_search
 
-    def _load_list(self, path):
+    def load_list(self, path: str):
+        """
+        Load a list from disk.        
+        Args:
+        ------------
+            path:str path of list of whitelisted license plates text file
+
+        Returns:
+        ------------
+            whitelist: list. Python list generated from a text file.         
+        """
         try:
             with open(path, 'r') as f:
                 whitelist = [plate.rstrip() for plate in f]
             return whitelist
         except Exception as e:
-            log.error("Problem with loading the whitlelist file", exc_info=True)
+            logger.error("Problem with loading the whitlelist file", exc_info=True)
 
-    def distance(self, plate, listpath):
+    def distance(self, plate:str, listpath:str):
         """
         Checks the similarity between each element of a list and a text.
         
         Args:
-            Plate (str): string of liocense plate in question
-            Listpath (str): path of list of whitelisted license plates text file
+        ------------
+            plate:str string of liocense plate in question
+            listpath:str path of list of whitelisted license plates text file
 
         Returns:
+        ------------
             None. Prints and saves results in text file.         
         """
-        whitelist = self._load_list(listpath)
+        whitelist = self.load_list(listpath)
         distances = []
         for i in whitelist:
             if self.method=='Levenshtein':    
@@ -49,8 +62,10 @@ class PlateSearcher():
         if min_d <= self.threshold:
             with open(self.output_search, 'w') as f:
                 print('[INFO] License plate %s identified with dissimilarity of %d to be a match for %s' % (min_d_key, min_d, plate),
-                file=f)          
+                file=f)
+                logger.info("License plate identified --> ACCES GRANTED!")          
         else:
             with open(self.output_search, 'w') as f:
                 print('[INFO] No License plate identified with min dissimilarity of %d to be a match for %s' % (self.threshold, plate),
                 file=f)
+                logger.info("License plate not identified for the Whitelist --> ACCES DENIED!")    

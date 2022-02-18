@@ -2,8 +2,26 @@
 import numpy as np
 from cv2 import imwrite, boundingRect, mean, rectangle
 from  imutils import resize
+import logging
+logger = logging.getLogger(__name__)
 
-def anonymize_pixelate(image, roi, lpCnt, outpath, blocks=3):
+
+def anonymize_pixelate(image, roi, lpCnt, outpath: str, blocks: int = 3):
+	"""
+	Pixalate the input image and returns it with the mask superimposed.
+
+	Args:
+	------------
+		image:img original image.
+		roi:img Image of the license plate
+		lpCnt:array Candidate contours
+		outpath:str Path to persist the anonymized image
+		blocks:int The number of blocks to pixelate
+
+	Returns:
+	------------
+		None. Persist anonymized image.
+	"""
 	image = resize(image, width=600)
 	(x, y, w, h) = boundingRect(lpCnt)
 	# divide the input image into NxN blocks
@@ -27,5 +45,8 @@ def anonymize_pixelate(image, roi, lpCnt, outpath, blocks=3):
 			rectangle(roi, (startX, startY), (endX, endY), (B, G, R), -1)
 	# return the pixelated blurred image
 	image[y:y + h, x:x + w] = roi
+
+	logger.info("Image anonymized.")  
+	print("Image anonymized.")
 	
 	imwrite(outpath, image)

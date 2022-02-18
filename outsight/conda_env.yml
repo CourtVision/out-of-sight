@@ -24,7 +24,7 @@ dependencies:
   - numpy-base=1.21.2
   - openssl=1.1.1m
   - packaging=20.4
-  - pandas=1.3.5
+  - pandas=1.3.5 
   - pip=21.1.3
   - pycosat=0.6.3
   - pycparser=2.20
@@ -55,6 +55,7 @@ dependencies:
     - luigi==3.0.3
     - networkx==2.6.3
     - opencv-contrib-python==4.5.5.62
+    - pdoc==10.0.1
     - pillow==9.0.0
     - pyarrow==6.0.1
     - pytesseract==0.3.8

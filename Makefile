@@ -17,14 +17,16 @@ PYTHON_VERSION = 3.9.5
 #################################################################################
 
 ## Install Python Dependencies
-store_requirements:
+store_conda_requirements:
 # pip list --format=freeze > requirements.txt
 	conda env export --name $(PROJECT_NAME) --no-builds --file $(PROJECT_NAME)/conda_env.yml
 
-install_requirements:
+install_os_requirements:
 ifeq ($(OS), Linux)
 	apt-get update
+	apt-get install -y wget
 	apt-get install tesseract-ocr -y
+	wget https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
 	apt-get install ffmpeg libsm6 libxext6  -y
     #$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
     #$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
@@ -38,14 +40,13 @@ else
 	conda init bash
 endif
 	conda config --append channels conda-forge
-	cd $(PACKAGE_NAME) && conda env create --name $(PROJECT_NAME) --file conda_env.yml python=$(PYTHON_VERSION)
+	conda env create --name $(PROJECT_NAME) --file conda_env.yml python=$(PYTHON_VERSION)
 
 # Activate project conda environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
 # start_conda:
 #	conda init bash
 #	conda activate $(PROJECT_NAME)
-# pip install opencv-contrib-python==4.5.5.62
 
 ## Delete all compiled Python files
 clean:
@@ -53,11 +54,7 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	echo ">>> Junk files cleaned."
 
-## Install linux libs
-#.ONESHELL:
-#ec2_setup:
-#	sudo apt-get update
-#	sudo apt-get install -y openjdk-8-jre
-#	cd $(HOME)
-#	sudo apt-get install -y pandoc
-#	sudo apt-get install -y graphviz
+## Create documentation
+doc:
+	cd $(PACKAGE_NAME) && mkdir -p docs && cd ..
+	pdoc --html --force --output-dir $(PACKAGE_NAME)/docs $(PACKAGE_NAME)

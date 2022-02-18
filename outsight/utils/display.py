@@ -1,5 +1,7 @@
 from cv2 import imshow, imwrite, waitKey as WK, drawContours, putText, boundingRect, boxPoints, minAreaRect, FONT_HERSHEY_SIMPLEX
 import imutils
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _cleanup_text(text):
@@ -8,7 +10,21 @@ def _cleanup_text(text):
 
 
 def ocrout(lpText, lpCnt, image, outpath, debug=False):
+    """
+    Persist the original image with the superimposed recognized text and contour.
 
+    Args:
+    ------------
+        image:img Original image.
+        gray:img Grayscale original image
+        lpCnt:array array of contour
+        lpText:str text of the plate
+        debug:bool mode of operation is debug
+
+    Returns:
+    ------------
+        None
+	"""
     if lpText is not None and lpCnt is not None:
         # fit a rotated bounding box to the license plate contour and
         # draw the bounding box on the license plate
@@ -24,14 +40,31 @@ def ocrout(lpText, lpCnt, image, outpath, debug=False):
         print("[INFO] %s" % lpText)
         if debug:
             imshow("Output ANPR", image)
+            WK(0)
         imwrite(outpath, image)
-        WK(0)
+        
+        logger.info("Persist the image with the superimposed plate and the recognized text.")  
+        print("Persist the image with the superimposed plate and the recognized text.")
 
     else:
         print("No license plate found!")
+        logger.info("No license plate found!")  
 
 
 def debug_imshow(title, image, waitKey=True):
+    """
+    Show image during debugging.
+
+    Args:
+    ------------
+        title:str Title of the image
+        image:img Image to be shown
+        waitKey:bool if the wait for key stroke to continue
+
+    Returns:
+    ------------
+        None
+	"""
     # show the image with the supplied title
     imshow(title, image)
 	# check to see if we should wait for a keypress
