@@ -3,8 +3,8 @@
 - using CV & NLP 
     - to recognize & anonymize license plates 
     - and search having a functionality within a whitlelist DB
-#### Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
-#### Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch[^1]
+- Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
+- Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch[^1]
 
 ## Main tasks executed by [`app.py`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/app.py):
 - :world_map:[`Locator`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/locator.py): finds license plate like rectangles on the input image
