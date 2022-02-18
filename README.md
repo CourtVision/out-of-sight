@@ -42,6 +42,10 @@
 #### if Linux:
     - See the ['Dockerfile'](https://github.com/CourtVision/out-of-sight/blob/main/Dockerfile)
 
+## TODO
+- Get Tesseract work in Docker (locally no problem)
+- Finish pdoc 
+
 ## License
 [License](https://github.com/CourtVision/out-of-sight/blob/main/outsight/LICENSE)
 
