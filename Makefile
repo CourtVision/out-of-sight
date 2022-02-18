@@ -26,7 +26,7 @@ ifeq ($(OS), Linux)
 	apt-get update
 	apt-get install -y wget
 	apt-get install tesseract-ocr -y
-	wget https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
+	wget https://github.com/tesseract-ocr/tessdata/blob/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
 	apt-get install ffmpeg libsm6 libxext6  -y
     #$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
     #$(PYTHON_INTERPRETER) -m pip install -r requirements.txt

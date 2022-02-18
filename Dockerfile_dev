@@ -26,9 +26,11 @@ ENV PYTHONUNBUFFERED=1
 COPY . /
 COPY /outsight/conda_env.yml .
 
-RUN apt-get update && apt-get install make
-RUN make install_requirements
-RUN make create_conda_env
+RUN apt-get update
+RUN apt-get install -y wget
+RUN	apt-get install tesseract-ocr -y
+RUN wget https://github.com/tesseract-ocr/tessdata/blob/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
+
 
 # Make RUN commands use the new environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
