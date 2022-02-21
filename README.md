@@ -30,7 +30,7 @@
 `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
 ## Module documentation
-[`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/main/outsight/docs/index.html)
+[`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
 
 ## Environment setup
 #### if Windows:
