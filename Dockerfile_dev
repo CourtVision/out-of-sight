@@ -27,9 +27,9 @@ COPY . /
 COPY /outsight/conda_env.yml .
 
 RUN apt update
-# RUN apt-get install -y wget
+RUN apt-get install -y wget
 RUN	apt install tesseract-ocr -y
-# RUN wget https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
+RUN wget https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
 
 # Make RUN commands use the new environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/

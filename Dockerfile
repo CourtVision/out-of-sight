@@ -9,9 +9,11 @@
 # docker volume inspect io-volume
 # Windows: \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
 
-##Copy
+## Copy
 # docker cp container_id:./bar/foo.txt .
 # docker cp foo.txt mycontainer:/foo.txt
+# docker images 
+# docker save <image-name>:latest > <image-name>.tar
 
 ## Cleanup
 # docker system prune
