@@ -130,7 +130,7 @@ dmypy.json
 
 # data
 data/
-io/
+io/*
 *.jpg
 *.jpeg
 **/*.jpg

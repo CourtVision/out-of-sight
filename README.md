@@ -29,6 +29,9 @@
 ## Basic usage
 `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
+## Module documentation
+[`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/main/outsight/docs/index.html)
+
 ## Environment setup
 #### if Windows:
     - Install Bash for Git
@@ -43,7 +46,6 @@
     - See the ['Dockerfile'](https://github.com/CourtVision/out-of-sight/blob/main/Dockerfile)
 
 ## TODO
-- Get Tesseract work in Docker (locally no problem)
 - Finish pdoc 
 
 ## License

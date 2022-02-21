@@ -59,4 +59,4 @@ clean:
 ## Create documentation
 doc:
 	cd $(PACKAGE_NAME) && mkdir -p docs && cd ..
-	pdoc -o $(PACKAGE_NAME)/docs $(PACKAGE_NAME)
+	pdoc -o $(PACKAGE_NAME)/docs $(PACKAGE_NAME)/utils
