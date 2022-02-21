@@ -18,7 +18,7 @@ class PlateReader:
 	------------
 		None
 	"""
-	def __init__(self, minAR: int = 4, maxAR: int = 5, psm: int = 7, oem: int = 2, debug: bool = False):
+	def __init__(self, minAR: int = 4, maxAR: int = 5, psm: int = 7, oem: int = 1, debug: bool = False):
 		self.minAR = minAR
 		self.maxAR = maxAR
 		self.debug = debug
@@ -32,6 +32,7 @@ class PlateReader:
 			# set the PSM mode
 			options += " --psm {}".format(self.psm)
 			options += " --oem {}".format(self.oem)
+			options += " -l {}".format('eng')
 			# return the built options string
 			return options
 

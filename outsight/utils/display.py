@@ -42,7 +42,7 @@ def ocrout(lpText, lpCnt, image, outpath, debug=False):
             imshow("Output ANPR", image)
             WK(0)
         imwrite(outpath, image)
-        
+ 
         logger.info("Persist the image with the superimposed plate and the recognized text.")  
         print("Persist the image with the superimposed plate and the recognized text.")
 

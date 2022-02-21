@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # Construct the argument parser and parse the arguments #
     ap = argparse.ArgumentParser()
     ap.add_argument("-w", "--workflow", type=str, default="all", help="tasks to be performed")
-    ap.add_argument("-c", "--clear-border", type=int, default=-1, help="whether or to clear border pixels before OCR'ing")
+    ap.add_argument("-c", "--clear-border", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether or to clear border pixels before OCR'ing")
     ap.add_argument("-d", "--debug", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether or not to show additional visualizations")
     ap.add_argument("-b", "--blocks", type=int, default=20, help="# of blocks for the pixelated blurring method")
     ap.add_argument("-m", "--searchmethod", type=str, default="Levenshtein", help="distance measure of list whitelist search")
@@ -39,8 +39,11 @@ if __name__ == '__main__':
         input = config.get("INPUT")
         input_whitelist = input + '/whitelist.txt'
         output = config.get("OUTPUT")
-        output_image = output + '/imageout.jpg'
-        output_anonym_image = output + '/anonout.jpg'
+        output_image = output + '/imageout.png'
+        output_roi = output + '/roi.png'
+        output_lp = output + '/lp.png'
+        output_lpc = output + '/lpc.png'
+        output_anonym_image = output + '/anonout.png'
         output_search = output + '/searchout.txt'
 
     except Exception as e:
@@ -71,8 +74,8 @@ if __name__ == '__main__':
             image = self.inputLoad(as_dict=True)['image']  # quickly load input data
             # apply automatic license plate recognition
             Locator = PlateLocator(minAR=4, maxAR=5, debug=args["debug"]) 
-            candidates, gray = Locator.run_candidates(image, keep=5)
-            (roi, lpCnt, licensePlate_col) = Locator.run_best_candidate(image, gray, candidates, clearBorder=args["clear_border"] > 0)
+            candidates = Locator.run_candidates(image, keep=5)
+            (roi, lpCnt, licensePlate_col) = Locator.run_best_candidate(image, candidates, clearBorder=args["clear_border"])
             self.save({'roi_lpCnt': (roi, lpCnt, licensePlate_col),'image': image})   
 
     # DO OCR
@@ -84,9 +87,9 @@ if __name__ == '__main__':
             (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
             image = self.inputLoad(as_dict=True)['image']
             # apply automatic license plate recognition
-            Reader = PlateReader(minAR=4, maxAR=5, psm=7, oem=2, debug=args["debug"]) 
+            Reader = PlateReader(minAR=4, maxAR=5, psm=7, oem=1, debug=args["debug"]) 
             lpText = Reader.runOCR(roi)     
-            self.save({'lpText_lpCnt': (lpText, lpCnt), 'image': image})   
+            self.save({'lpText_lpCnt': (lpText, lpCnt), 'image': image, 'roi': roi})   
 
     # DO Display
     logging.info("Save recognized image...")
@@ -117,8 +120,6 @@ if __name__ == '__main__':
             (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
             Searcher = PlateSearcher(output_search, method=args["searchmethod"], threshold=args["threshold"]) 
             Searcher.distance(lpText, input_whitelist)     
-
-
 
 
     # Define workflow manager

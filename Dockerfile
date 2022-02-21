@@ -1,3 +1,4 @@
+## Build, create, start
 ## build: docker build -f Dockerfile -t outsight-image --no-cache .
 ## run: docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug
 ## debug: docker run -i -t  --name outsight-container outsight-image bash
@@ -33,6 +34,7 @@ COPY /outsight/conda_env.yml .
 RUN apt-get update && apt-get install make
 RUN make install_os_requirements
 RUN make create_conda_env
+
 
 # Make RUN commands use the new environment
 # https://pythonspeed.com/articles/activate-conda-dockerfile/

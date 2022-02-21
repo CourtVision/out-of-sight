@@ -24,10 +24,12 @@ store_conda_requirements:
 install_os_requirements:
 ifeq ($(OS), Linux)
 	apt-get update
-	apt-get install -y wget
-	apt-get install tesseract-ocr -y
-	wget https://github.com/tesseract-ocr/tessdata/blob/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
 	apt-get install ffmpeg libsm6 libxext6  -y
+	apt-get install -y wget
+	apt update
+	apt install tesseract-ocr -y
+	wget https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata -O /usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata 2> /dev/null
+
     #$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
     #$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 endif
@@ -57,4 +59,4 @@ clean:
 ## Create documentation
 doc:
 	cd $(PACKAGE_NAME) && mkdir -p docs && cd ..
-	pdoc --html --force --output-dir $(PACKAGE_NAME)/docs $(PACKAGE_NAME)
+	pdoc -o $(PACKAGE_NAME)/docs $(PACKAGE_NAME)

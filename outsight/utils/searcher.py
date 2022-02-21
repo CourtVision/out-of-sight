@@ -53,7 +53,7 @@ class PlateSearcher():
         distances = []
         for i in whitelist:
             if self.method=='Levenshtein':    
-                d = distance(plate.rstrip(), i)  # remove trailing newline
+                d = distance(plate.rstrip().replace(' ', ''), i)  # remove trailing newline
             distances.append(d)
             dist_dict = dict(zip(whitelist, distances))
             min_d_key = min(dist_dict, key=dist_dict.get) 

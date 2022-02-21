@@ -106,17 +106,16 @@ class PlateLocator:
 		# return the list of contours
 		logger.info("Searching for candidate locations done.")  
 		print("Searching for candidate locations done.")
-		return candidates, gray
+		return candidates
 
 
-	def run_best_candidate(self, image, gray, candidates, clearBorder:bool = False):
+	def run_best_candidate(self, image, candidates, clearBorder:bool = False):
 		"""
 		Gets the best position for the license plate out of candidates if they match the aspect ratio.
 
 		Args:
 		------------
 			image:img Original image.
-			gray:img Grayscale original image
 			candidates:array Candidate contours
 			clearBorder:bool Option if to clear boarders
 
@@ -143,9 +142,9 @@ class PlateLocator:
 				# license plate from the grayscale image and then threshold it
 				lpCnt = c
 				licensePlate_col = image[y:y + h, x:x + w]
-				licensePlate = gray[y:y + h, x:x + w]
-				roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-				
+				licensePlate = cv2.cvtColor(licensePlate_col, cv2.COLOR_BGR2GRAY) 
+				#roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+				roi = licensePlate.copy()
 				# check to see if we should clear any foreground
 				# pixels touching the border of the image
 				# (which typically, not but always, indicates noise)
