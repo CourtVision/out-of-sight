@@ -1,4 +1,4 @@
-Most of the code in "anonymmizer.py", "app.py", "display.py", "locator.py" &
+Most of the code in "anonymmizer.py", "display.py", "locator.py" &
 "reader.py" is based on the blog posts of PyImageSearch.com.
 
 Copyright (c) 2020 PyImageSearch.com (Adrian Rosebrock)
