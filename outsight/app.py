@@ -40,9 +40,6 @@ if __name__ == '__main__':
         input_whitelist = input + '/whitelist.txt'
         output = config.get("OUTPUT")
         output_image = output + '/imageout.png'
-        output_roi = output + '/roi.png'
-        output_lp = output + '/lp.png'
-        output_lpc = output + '/lpc.png'
         output_anonym_image = output + '/anonout.png'
         output_search = output + '/searchout.txt'
 
