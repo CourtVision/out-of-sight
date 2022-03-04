@@ -16,8 +16,8 @@ class PlateLocator:
 
 		Args:
 		------------
-			minAR:int minimum rectangular aspect ratio
-			maxAR:int maximum rectangular aspect ratio
+			minAR (int): Minimum rectangular aspect ratio
+			maxAR (int): Maximum rectangular aspect ratio
 
 		Returns:
 		------------
@@ -31,16 +31,17 @@ class PlateLocator:
 		"""
 		Performs a blackhat morphological operation that will allow
 		us to reveal dark regions (i.e., text) on light backgrounds
-		difference between the closing of the input image and input image.
-		(i.e., the license plate itself) keeps so many sorted license plate candidate contours
+		difference between the closing of the input image and input image
+		(i.e., the license plate itself).
 
 		Args:
 		------------
-			image:img Location of the CONFIG file.
+			image (img)
+			keep (int): keeps so many sorted license plate candidate contours
 
 		Returns:
 		------------
-			config:dict  
+			candidates (list)  
 		"""
 		image = imutils.resize(image, width=600)
 		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -61,9 +62,9 @@ class PlateLocator:
 		# compute the Scharr gradient representation of the blackhat
 		# Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate
 		# image in the x-direction and then scale the result back to the range [0, 255]
-		# The Sobel Operator is a discrete differentiation operator. It computes an approximation of the gradient of an image intensity function.
+		# The Sobel Operator is a discrete differentiation operator. It computes an approximation
+		# of the gradient of an image intensity function.
 		# kernerl=-1 means 3x3.
-
 		gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
 		gradX = np.absolute(gradX)
 		(minVal, maxVal) = (np.min(gradX), np.max(gradX))
@@ -87,10 +88,10 @@ class PlateLocator:
 		if self.debug:
 			debug_imshow(title="Grad Erode/Dilate", image=thresh)
 
-		# take the bitwise AND between the threshold result and the
-		# light regions of the image
+		# take the bitwise AND between the threshold result and the light regions of the image
 		# The general usage is that you want to get a subset of an image defined by another image, typically referred to as a "mask".
-		# light image serves as our mask for a bitwise-AND between the thresholded result and the light regions of the image to reveal the license plate candidates
+		# light image serves as our mask for a bitwise-AND between the thresholded result and the light regions 
+		# of the image to reveal the license plate candidates
 		thresh = cv2.bitwise_and(thresh, thresh, mask=light)
 		thresh = cv2.dilate(thresh, None, iterations=2)
 		thresh = cv2.erode(thresh, None, iterations=1)
@@ -109,21 +110,21 @@ class PlateLocator:
 		return candidates
 
 
-	def run_best_candidate(self, image, candidates, clearBorder:bool = False):
+	def run_best_candidate(self, image, candidates, clearBorder: bool = False):
 		"""
 		Gets the best position for the license plate out of candidates if they match the aspect ratio.
 
 		Args:
 		------------
-			image:img Original image.
-			candidates:array Candidate contours
-			clearBorder:bool Option if to clear boarders
+			image (img): Original image.
+			candidates (list): List of Candidate contours arrays
+			clearBorder (bool): Option if to clear boarders
 
 		Returns:
 		------------
-			roi:array Location of the plate
-			lpCnt:array Corresponding countours
-			licensePlate_col:img image of the plate
+			roi (array): Location of the plate
+			lpCnt (array): Corresponding countours
+			licensePlate_col (img): Image of the plate
 		"""
 		# initialize the license plate contour and ROI
 		image = imutils.resize(image, width=600)
@@ -156,8 +157,18 @@ class PlateLocator:
 					debug_imshow(title="License Plate", image=licensePlate)
 					debug_imshow(title="ROI", image=roi, waitKey=True)
 				break
+		try:
+			licensePlate
+		except NameError:
+			licensePlate = None
+			logger.info("No license plate found.")
 
-		# return a 3-tuple of the license plate, ROI and the contour associated with it
-		logger.info("Searching for the location done.")  
-		print("Searching for the location done.")
-		return (roi, lpCnt, licensePlate_col)
+		if licensePlate.any():
+			# return a 3-tuple of the license plate, ROI and the contour associated with it
+			logger.info("Searching for the location done.")  
+			print("Searching for the location done.")
+			return (roi, lpCnt, licensePlate_col)
+		else:
+			logger.info("Searching for the location done. No license plate found.")  
+			print("Searching for the location done. No license plate found.")
+			return (None, None, None)

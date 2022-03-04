@@ -1,4 +1,3 @@
-# import the necessary packages
 import numpy as np
 from cv2 import imwrite, boundingRect, mean, rectangle
 from  imutils import resize
@@ -12,11 +11,11 @@ def anonymize_pixelate(image, roi, lpCnt, outpath: str, blocks: int = 3):
 
 	Args:
 	------------
-		image:img original image.
-		roi:img Image of the license plate
-		lpCnt:array Candidate contours
-		outpath:str Path to persist the anonymized image
-		blocks:int The number of blocks to pixelate
+		image (img): Original image
+		roi (img): Image of the license plate
+		lpCnt (array): Candidate contours
+		outpath (str): Path to persist the anonymized image
+		blocks (int): The number of blocks to pixelate
 
 	Returns:
 	------------

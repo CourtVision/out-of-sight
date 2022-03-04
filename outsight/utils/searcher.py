@@ -9,10 +9,11 @@ class PlateSearcher():
     
     Args:
     ------------
-        method (str): Comparision method, Default=Levenshtein. 
-        method (int): Level of deviation (due to OCRing problems) to accept license plate. 
+        method (str): Comparision method, Default=Levenshtein
+        threshold (int): Level of deviation (due to OCRing problems) to accept license plate
+        output_search (str): Path of list of results persisted in a text file
     """
-    def __init__(self, output_search, method='Levenshtein', threshold=1):
+    def __init__(self, output_search: str, method: str = 'Levenshtein', threshold: int = 1):
 
         self.method = method       # more methods to be added if needed
         self.threshold = threshold
@@ -23,11 +24,11 @@ class PlateSearcher():
         Load a list from disk.        
         Args:
         ------------
-            path:str path of list of whitelisted license plates text file
+            path (str): Path of list of whitelisted license plates text file
 
         Returns:
         ------------
-            whitelist: list. Python list generated from a text file.         
+            whitelist (list): Python list generated from a text file     
         """
         try:
             with open(path, 'r') as f:
@@ -36,14 +37,14 @@ class PlateSearcher():
         except Exception as e:
             logger.error("Problem with loading the whitlelist file", exc_info=True)
 
-    def distance(self, plate:str, listpath:str):
+    def distance(self, plate: str, listpath: str):
         """
         Checks the similarity between each element of a list and a text.
         
         Args:
         ------------
-            plate:str string of liocense plate in question
-            listpath:str path of list of whitelisted license plates text file
+            plate (str): String of license plate in question
+            listpath (str): Path of list of whitelisted license plates text file
 
         Returns:
         ------------

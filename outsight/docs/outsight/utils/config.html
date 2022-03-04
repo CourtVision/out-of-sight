@@ -63,11 +63,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.config    </h1>
 
 <span class="sd">    Args:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        path:str Location of the CONFIG file.</span>
+<span class="sd">        path (str): Location of the CONFIG file</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        config:dict  </span>
+<span class="sd">        config (dict)  </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_yaml</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;yaml&quot;</span>   
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">is_yaml</span><span class="p">:</span>
@@ -105,11 +105,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.config    </h1>
 
 <span class="sd">    Args:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        path:str Location of the CONFIG file.</span>
+<span class="sd">        path (str): Location of the CONFIG file</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        config:dict  </span>
+<span class="sd">        config (dict)  </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_yaml</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;yaml&quot;</span>   
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">is_yaml</span><span class="p">:</span>
@@ -134,12 +134,12 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.config    </h1>
 
 <h2 id="args">Args:</h2>
 
-<pre><code>path:str Location of the CONFIG file.
+<pre><code>path (str): Location of the CONFIG file
 </code></pre>
 
 <h2 id="returns">Returns:</h2>
 
-<pre><code>config:dict
+<pre><code>config (dict)
 </code></pre>
 </div>
 

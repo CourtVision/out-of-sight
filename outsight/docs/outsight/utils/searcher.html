@@ -75,10 +75,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
 <span class="sd">    </span>
 <span class="sd">    Args:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        method (str): Comparision method, Default=Levenshtein. </span>
-<span class="sd">        method (int): Level of deviation (due to OCRing problems) to accept license plate. </span>
+<span class="sd">        method (str): Comparision method, Default=Levenshtein</span>
+<span class="sd">        threshold (int): Level of deviation (due to OCRing problems) to accept license plate</span>
+<span class="sd">        output_search (str): Path of list of results persisted in a text file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>       <span class="c1"># more methods to be added if needed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
@@ -89,11 +90,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
 <span class="sd">        Load a list from disk.        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            path:str path of list of whitelisted license plates text file</span>
+<span class="sd">            path (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            whitelist: list. Python list generated from a text file.         </span>
+<span class="sd">            whitelist (list): Python list generated from a text file     </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -102,14 +103,14 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Problem with loading the whitlelist file&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks the similarity between each element of a list and a text.</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            plate:str string of liocense plate in question</span>
-<span class="sd">            listpath:str path of list of whitelisted license plates text file</span>
+<span class="sd">            plate (str): String of license plate in question</span>
+<span class="sd">            listpath (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
@@ -157,10 +158,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
 <span class="sd">    </span>
 <span class="sd">    Args:</span>
 <span class="sd">    ------------</span>
-<span class="sd">        method (str): Comparision method, Default=Levenshtein. </span>
-<span class="sd">        method (int): Level of deviation (due to OCRing problems) to accept license plate. </span>
+<span class="sd">        method (str): Comparision method, Default=Levenshtein</span>
+<span class="sd">        threshold (int): Level of deviation (due to OCRing problems) to accept license plate</span>
+<span class="sd">        output_search (str): Path of list of results persisted in a text file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>       <span class="c1"># more methods to be added if needed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
@@ -171,11 +173,11 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
 <span class="sd">        Load a list from disk.        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            path:str path of list of whitelisted license plates text file</span>
+<span class="sd">            path (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            whitelist: list. Python list generated from a text file.         </span>
+<span class="sd">            whitelist (list): Python list generated from a text file     </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -184,14 +186,14 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Problem with loading the whitlelist file&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks the similarity between each element of a list and a text.</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            plate:str string of liocense plate in question</span>
-<span class="sd">            listpath:str path of list of whitelisted license plates text file</span>
+<span class="sd">            plate (str): String of license plate in question</span>
+<span class="sd">            listpath (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
@@ -225,8 +227,9 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.searcher    </h1>
 
 <h2 id="args">Args:</h2>
 
-<pre><code>method (str): Comparision method, Default=Levenshtein. 
-method (int): Level of deviation (due to OCRing problems) to accept license plate.
+<pre><code>method (str): Comparision method, Default=Levenshtein
+threshold (int): Level of deviation (due to OCRing problems) to accept license plate
+output_search (str): Path of list of results persisted in a text file
 </code></pre>
 </div>
 
@@ -235,12 +238,12 @@ method (int): Level of deviation (due to OCRing problems) to accept license plat
                                         <div class="attr function"><a class="headerlink" href="#PlateSearcher.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">PlateSearcher</span><span class="signature">(output_search, method=&#39;Levenshtein&#39;, threshold=1)</span>
+            <span class="name">PlateSearcher</span><span class="signature">(output_search: str, method: str = &#39;Levenshtein&#39;, threshold: int = 1)</span>
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_search</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Levenshtein&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>       <span class="c1"># more methods to be added if needed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
@@ -267,11 +270,11 @@ method (int): Level of deviation (due to OCRing problems) to accept license plat
 <span class="sd">        Load a list from disk.        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            path:str path of list of whitelisted license plates text file</span>
+<span class="sd">            path (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            whitelist: list. Python list generated from a text file.         </span>
+<span class="sd">            whitelist (list): Python list generated from a text file     </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -287,12 +290,12 @@ method (int): Level of deviation (due to OCRing problems) to accept license plat
 
 <h2 id="args">Args:</h2>
 
-<pre><code>path:str path of list of whitelisted license plates text file
+<pre><code>path (str): Path of list of whitelisted license plates text file
 </code></pre>
 
 <h2 id="returns">Returns:</h2>
 
-<pre><code>whitelist: list. Python list generated from a text file.
+<pre><code>whitelist (list): Python list generated from a text file
 </code></pre>
 </div>
 
@@ -308,14 +311,14 @@ method (int): Level of deviation (due to OCRing problems) to accept license plat
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">listpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks the similarity between each element of a list and a text.</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">        ------------</span>
-<span class="sd">            plate:str string of liocense plate in question</span>
-<span class="sd">            listpath:str path of list of whitelisted license plates text file</span>
+<span class="sd">            plate (str): String of license plate in question</span>
+<span class="sd">            listpath (str): Path of list of whitelisted license plates text file</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">        ------------</span>
@@ -349,8 +352,8 @@ method (int): Level of deviation (due to OCRing problems) to accept license plat
 
 <h2 id="args">Args:</h2>
 
-<pre><code>plate:str string of liocense plate in question
-listpath:str path of list of whitelisted license plates text file
+<pre><code>plate (str): String of license plate in question
+listpath (str): Path of list of whitelisted license plates text file
 </code></pre>
 
 <h2 id="returns">Returns:</h2>

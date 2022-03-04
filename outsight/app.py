@@ -1,7 +1,7 @@
 import os
-import d6tflow
 import logging
 import argparse
+import d6tflow
 from pathlib import Path
 from imutils import paths
 from cv2 import imread
@@ -15,25 +15,28 @@ from utils.config import parse_configuration
 if __name__ == '__main__':
 
 
-    # Set logging #
+    ## Set logging ##
     log_path = Path(os.path.join(Path(__file__).parents[1], 'io/app.log')).absolute()
     logging.basicConfig(filename=log_path, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-    # Construct the argument parser and parse the arguments #
+    ## Construct the argument parser and parse the arguments ##
     ap = argparse.ArgumentParser()
-    ap.add_argument("-w", "--workflow", type=str, default="all", help="tasks to be performed")
-    ap.add_argument("-c", "--clear-border", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether or to clear border pixels before OCR'ing")
-    ap.add_argument("-d", "--debug", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether or not to show additional visualizations")
+    ap.add_argument("-w", "--workflow", type=str, default="all", choices=['all', 'OCR', 'Whitelist', 'Anonymize'], help="tasks to be performed")
+    ap.add_argument("-minAR", "--min_aspectratio", type=int, default=4, help="# minimum aspect ratio used to detect and filter rectangular license plates")
+    ap.add_argument("-maxAR", "--max_aspectratio", type=int, default=5, help="# maximum aspect ratio used to detect and filter rectangular license plates")
     ap.add_argument("-b", "--blocks", type=int, default=20, help="# of blocks for the pixelated blurring method")
-    ap.add_argument("-m", "--searchmethod", type=str, default="Levenshtein", help="distance measure of list whitelist search")
+    ap.add_argument("-m", "--searchmethod", type=str, default="Levenshtein", help="distance measure during the whitelist search")
     ap.add_argument("-t", "--threshold", type=int, default=1, help="distance threshold for the whitelist match")
+    ap.add_argument("-c", "--clear-border", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether to clear border pixels before OCR'ing")
+    ap.add_argument("-d", "--debug", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether to show additional visualizations")
 
     args = vars(ap.parse_args())
 
-    # Load the config file
+
+    ## Load the config file ##
     try:
-        p = Path(os.path.join(Path(__file__).parents[1], 'CONFIG.yaml')).absolute()  # one level up
+        p = Path(os.path.join(Path(__file__).parents[1], 'CONFIG.yaml')).absolute()
         config = parse_configuration(p) 
 
         input = config.get("INPUT")
@@ -47,7 +50,7 @@ if __name__ == '__main__':
         logging.error("Problem with loading the CONFIG file", exc_info=True)
 
             
-    # Setup workflow #
+    ## Setup workflow ##
 
     # DO get training data and save it
     logging.info("Start getting the image...")
@@ -69,8 +72,7 @@ if __name__ == '__main__':
 
         def run(self):
             image = self.inputLoad(as_dict=True)['image']  # quickly load input data
-            # apply automatic license plate recognition
-            Locator = PlateLocator(minAR=4, maxAR=5, debug=args["debug"]) 
+            Locator = PlateLocator(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], debug=args["debug"]) 
             candidates = Locator.run_candidates(image, keep=5)
             (roi, lpCnt, licensePlate_col) = Locator.run_best_candidate(image, candidates, clearBorder=args["clear_border"])
             self.save({'roi_lpCnt': (roi, lpCnt, licensePlate_col),'image': image})   
@@ -81,11 +83,18 @@ if __name__ == '__main__':
     class Read(d6tflow.tasks.TaskPickle):
 
         def run(self):
-            (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
-            image = self.inputLoad(as_dict=True)['image']
-            # apply automatic license plate recognition
-            Reader = PlateReader(minAR=4, maxAR=5, psm=7, oem=1, debug=args["debug"]) 
-            lpText = Reader.runOCR(roi)     
+            try:
+                (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
+            except:
+                (roi, lpCnt, licensePlate_col) = (None, None, None)
+            if licensePlate_col.any():
+                image = self.inputLoad(as_dict=True)['image']
+                Reader = PlateReader(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], psm=7, oem=1, debug=args["debug"]) 
+                lpText = Reader.runOCR(roi)     
+            else:
+                image = None
+                lpText = None
+                logging.info("No license plate to be read.")
             self.save({'lpText_lpCnt': (lpText, lpCnt), 'image': image, 'roi': roi})   
 
     # DO Display
@@ -94,9 +103,16 @@ if __name__ == '__main__':
     class DisplayImageOCR(d6tflow.tasks.TaskPickle):
 
         def run(self):
-            (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
-            image = self.inputLoad(as_dict=True)['image']
-            ocrout(lpText, lpCnt, image, outpath=output_image, debug=args["debug"])
+            try:
+                (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
+            except:
+                (lpText, lpCnt) = (None, None)
+            if lpText:
+                image = self.inputLoad(as_dict=True)['image']
+                ocrout(lpText, lpCnt, image, outpath=output_image, debug=args["debug"])
+            else:
+                print('No license plate to display.')
+                logging.info("No license plate to display.")
 
     # DO Anonymization
     logging.info("Save ananymized image...")
@@ -104,9 +120,16 @@ if __name__ == '__main__':
     class Anonymize(d6tflow.tasks.TaskPickle):
 
         def run(self):
-            (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
-            image = self.inputLoad(as_dict=True)['image']
-            anonymize_pixelate(image, licensePlate_col, lpCnt, outpath=output_anonym_image, blocks=args["blocks"])
+            try:
+                (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
+            except:
+                (roi, lpCnt, licensePlate_col) = (None, None, None)
+            if licensePlate_col.any():
+                image = self.inputLoad(as_dict=True)['image']
+                anonymize_pixelate(image, licensePlate_col, lpCnt, outpath=output_anonym_image, blocks=args["blocks"])
+            else:
+                print('No license plate to anonymize.')
+                logging.info("No license plate to anonymize.")
 
     # DO Search plate in Whitelist
     logging.info("Looking for current license plate in the list of whitelisted ones...")
@@ -114,12 +137,19 @@ if __name__ == '__main__':
     class Search(d6tflow.tasks.TaskPickle):
 
         def run(self):
-            (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
-            Searcher = PlateSearcher(output_search, method=args["searchmethod"], threshold=args["threshold"]) 
-            Searcher.distance(lpText, input_whitelist)     
+            try:
+                (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
+            except:
+                (lpText, lpCnt) = (None, None)
+            if lpText:
+                Searcher = PlateSearcher(output_search, method=args["searchmethod"], threshold=args["threshold"]) 
+                Searcher.distance(lpText, input_whitelist)     
+            else:
+                print('No license plate to search for.')
+                logging.info("No license plate to search for.")
 
 
-    # Define workflow manager
+    ## Define workflow manager ##
     d6tflow.settings.log_level = 'INFO'
     flow = d6tflow.Workflow()
     flow.preview(DisplayImageOCR)

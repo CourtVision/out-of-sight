@@ -1,9 +1,9 @@
 from Levenshtein import distance
 
 def _load_list(path):
-            with open(path, 'r') as f:
-                whitelist = [plate.rstrip() for plate in f]
-            return whitelist
+    with open(path, 'r') as f:
+        whitelist = [plate.rstrip() for plate in f]
+    return whitelist
 
 whitelist = _load_list('io\photos_input\whitelist.txt')
 distances = []

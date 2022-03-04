@@ -9,11 +9,11 @@ def parse_configuration(path: str) -> dict:
 
     Args:
     ------------
-        path:str Location of the CONFIG file.
+        path (str): Location of the CONFIG file
 
     Returns:
     ------------
-        config:dict  
+        config (dict)  
     """
     is_yaml = str(str(path).split(".")[-1]).lower() == "yaml"   
     if path.exists() and is_yaml:

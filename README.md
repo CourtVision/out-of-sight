@@ -2,24 +2,27 @@
 ## This is a pet project for fun :blush:
 - using CV & NLP 
     - to recognize & anonymize license plates 
-    - and search having a functionality within a whitlelist DB
+    - and to search, find, and match the plate text within a whitlelist DB
 - Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
 - Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch[^1]
 
 ## Main tasks executed by [`app.py`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/app.py):
-- :world_map:[`Locator`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/locator.py): finds license plate like rectangles on the input image
+- :world_map:[`Locator`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/locator.py): finds "license plate like" rectangles on the input image
 - :eye_speech_bubble:[`Reader`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/reader.py): performs OCR on the image segment in question
-- :framed_picture:[`Display`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/display.py): Persists the image with the superimposed text of the license plate
+- :framed_picture:[`Display`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/display.py): persists the image with the superimposed text of the license plate
 - :see_no_evil:[`Anonymizer`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/anonymizer.py): blurs the license plate 
 - :scroll:[`Searcher`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/searcher.py): checks the given license plate´s text in a list of whitlisted plates with an arbitrary degree of similarity
 
 ## Docker container
 - Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
 - Arguments include:
-    -  task(s) to be executed (`-w`)
-    -  threshold for the Levensthein distance of the whitelist comparision (`-t`)
-    -  pixelization parameter for the anonymization task (`-b`)
-    -  switch for debugging (`--no-debug`)
+    -  task(s) to be executed (`-w`), `choices=['all', 'OCR', 'Whitelist', 'Anonymize']`
+    -  minimum aspect ratio used to detect and filter rectangular license plates (`-minAR`), `default=4`
+    -  maximum aspect ratio used to detect and filter rectangular license plates (`-maxAR`), `default=5`
+    -  threshold for the Levensthein distance of the whitelist comparision (`-t`), `default = 1`
+    -  distance measure during the whitelist search (`-m`), `default = 'Levensthein'`
+    -  pixelization parameter , # of blocks for the blurring method (`-b`), `default = 20`
+    -  switch for debugging (`default = --no-debug`)
 
 ## Workflow execution with [`d6tflow`](https://github.com/d6t/d6tflow)
 - Given a successful localization
@@ -46,7 +49,7 @@
     - See the ['Dockerfile'](https://github.com/CourtVision/out-of-sight/blob/main/Dockerfile)
 
 ## TODO
-- Finish pdoc 
+- Test other input imagess
 
 ## License
 [License](https://github.com/CourtVision/out-of-sight/blob/main/outsight/LICENSE)

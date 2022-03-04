@@ -4,22 +4,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def _cleanup_text(text):
-	# strip out non-ASCII text so we can draw the text on the image using OpenCV
-	return "".join([c if ord(c) < 128 else "" for c in text]).strip()
+def _cleanup_text(text: str):
+    """
+    Strips out non-ASCII text so we can draw the text on the image using OpenCV.
+
+    Args:
+    ------------
+        text (str): String to trtip non-ASCII
+
+    Returns:
+    ------------
+        text (str)
+	"""
+    return "".join([c if ord(c) < 128 else "" for c in text]).strip()
 
 
-def ocrout(lpText, lpCnt, image, outpath, debug=False):
+def ocrout(lpText: str, lpCnt, image, outpath: str, debug: bool = False):
     """
     Persist the original image with the superimposed recognized text and contour.
 
     Args:
     ------------
-        image:img Original image.
-        gray:img Grayscale original image
-        lpCnt:array array of contour
-        lpText:str text of the plate
-        debug:bool mode of operation is debug
+        image (img): Original image.
+        gray (img): Grayscale original image
+        lpCnt (array): Array of contour
+        lpText (str): Text of the plate
+        debug (bool): Mode of operation is debug
 
     Returns:
     ------------
@@ -51,15 +61,15 @@ def ocrout(lpText, lpCnt, image, outpath, debug=False):
         logger.info("No license plate found!")  
 
 
-def debug_imshow(title, image, waitKey=True):
+def debug_imshow(title: str, image, waitKey: bool = True):
     """
     Show image during debugging.
 
     Args:
     ------------
-        title:str Title of the image
-        image:img Image to be shown
-        waitKey:bool if the wait for key stroke to continue
+        title (str): Title of the image
+        image (img): Image to be shown
+        waitKey (bool): If the wait for key stroke to continue
 
     Returns:
     ------------

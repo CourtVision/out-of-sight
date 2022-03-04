@@ -11,8 +11,8 @@ class PlateReader:
 
 	Args:
 	------------
-		minAR:int minimum rectangular aspect ratio
-		maxAR:int maximum rectangular aspect ratio
+		minAR (int): minimum rectangular aspect ratio
+		maxAR (int): maximum rectangular aspect ratio
 
 	Returns:
 	------------
@@ -42,11 +42,11 @@ class PlateReader:
 
 		Args:
 		------------
-			roi:img Image of the location to be OCRed
+			roi (img): Image of the location to be OCRed
 
 		Returns:
 		------------
-			lpText:str String of the plate found on the image
+			lpText (str): String of the plate found on the image
 		"""
 		# initialize the license plate text
 		lpText = None
