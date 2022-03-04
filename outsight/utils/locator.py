@@ -159,16 +159,13 @@ class PlateLocator:
 				break
 		try:
 			licensePlate
+			if licensePlate.any():
+				# return a 3-tuple of the license plate, ROI and the contour associated with it
+				logger.info("Searching for the location done.")  
+				print("Searching for the location done.")
+				return (roi, lpCnt, licensePlate_col)
 		except NameError:
 			licensePlate = None
-			logger.info("No license plate found.")
-
-		if licensePlate.any():
-			# return a 3-tuple of the license plate, ROI and the contour associated with it
-			logger.info("Searching for the location done.")  
-			print("Searching for the location done.")
-			return (roi, lpCnt, licensePlate_col)
-		else:
 			logger.info("Searching for the location done. No license plate found.")  
 			print("Searching for the location done. No license plate found.")
 			return (None, None, None)

@@ -85,13 +85,12 @@ if __name__ == '__main__':
         def run(self):
             try:
                 (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
+                if licensePlate_col.any():
+                    image = self.inputLoad(as_dict=True)['image']
+                    Reader = PlateReader(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], psm=7, oem=1, debug=args["debug"]) 
+                    lpText = Reader.runOCR(roi)     
             except:
                 (roi, lpCnt, licensePlate_col) = (None, None, None)
-            if licensePlate_col.any():
-                image = self.inputLoad(as_dict=True)['image']
-                Reader = PlateReader(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], psm=7, oem=1, debug=args["debug"]) 
-                lpText = Reader.runOCR(roi)     
-            else:
                 image = None
                 lpText = None
                 logging.info("No license plate to be read.")
@@ -122,12 +121,11 @@ if __name__ == '__main__':
         def run(self):
             try:
                 (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
+                if licensePlate_col.any():
+                    image = self.inputLoad(as_dict=True)['image']
+                    anonymize_pixelate(image, licensePlate_col, lpCnt, outpath=output_anonym_image, blocks=args["blocks"])
             except:
                 (roi, lpCnt, licensePlate_col) = (None, None, None)
-            if licensePlate_col.any():
-                image = self.inputLoad(as_dict=True)['image']
-                anonymize_pixelate(image, licensePlate_col, lpCnt, outpath=output_anonym_image, blocks=args["blocks"])
-            else:
                 print('No license plate to anonymize.')
                 logging.info("No license plate to anonymize.")
 
@@ -139,12 +137,11 @@ if __name__ == '__main__':
         def run(self):
             try:
                 (lpText, lpCnt) = self.inputLoad(as_dict=True)['lpText_lpCnt']
+                if lpText:
+                    Searcher = PlateSearcher(output_search, method=args["searchmethod"], threshold=args["threshold"]) 
+                    Searcher.distance(lpText, input_whitelist)     
             except:
                 (lpText, lpCnt) = (None, None)
-            if lpText:
-                Searcher = PlateSearcher(output_search, method=args["searchmethod"], threshold=args["threshold"]) 
-                Searcher.distance(lpText, input_whitelist)     
-            else:
                 print('No license plate to search for.')
                 logging.info("No license plate to search for.")
 
