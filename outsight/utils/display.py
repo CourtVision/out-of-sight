@@ -1,4 +1,5 @@
-from cv2 import imshow, imwrite, waitKey as WK, drawContours, putText, boundingRect, boxPoints, minAreaRect, FONT_HERSHEY_SIMPLEX
+from cv2 import imshow, imwrite, waitKey as WK, drawContours, putText, boundingRect, \
+                boxPoints, minAreaRect, FONT_HERSHEY_SIMPLEX
 import imutils
 import logging
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ def ocrout(lpText: str, lpCnt, image, outpath: str, debug: bool = False):
         (x, y, w, h) = boundingRect(lpCnt)
         putText(image, _cleanup_text(lpText), (x, y - 15), FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
         # show the output ANPR image
-        print("[INFO] %s" % lpText)
+        # print("[INFO] %s" % lpText)
         if debug:
             imshow("Output ANPR", image)
             WK(0)

@@ -5,6 +5,7 @@
     - and to search, find, and match the plate text within a whitlelist DB
 - Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
 - Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch[^1]
+    - The license plate locator part is based on Simon Kiruri´s post on https://www.section.io [^2]
 
 ## Main tasks executed by [`app.py`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/app.py):
 - :world_map:[`Locator`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/locator.py): finds "license plate like" rectangles on the input image
@@ -60,3 +61,6 @@
       - https://www.pyimagesearch.com/2019/12/02/opencv-vehicle-detection-tracking-and-speed-estimation/
       - https://www.pyimagesearch.com/2020/04/06/blur-and-anonymize-faces-with-opencv-and-python/
       - https://www.pyimagesearch.com/2020/09/21/opencv-automatic-license-number-plate-recognition-anpr-with-python/
+
+[^2]: License Plate Detection And Recognition Using OpenCv And Pytesseract (accessed: 07.03.2022)
+      -  https://www.section.io/engineering-education/license-plate-detection-and-recognition-using-opencv-and-pytesseract/

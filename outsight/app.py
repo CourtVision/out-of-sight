@@ -23,8 +23,8 @@ if __name__ == '__main__':
     ## Construct the argument parser and parse the arguments ##
     ap = argparse.ArgumentParser()
     ap.add_argument("-w", "--workflow", type=str, default="all", choices=['all', 'OCR', 'Whitelist', 'Anonymize'], help="tasks to be performed")
-    ap.add_argument("-minAR", "--min_aspectratio", type=int, default=4, help="# minimum aspect ratio used to detect and filter rectangular license plates")
-    ap.add_argument("-maxAR", "--max_aspectratio", type=int, default=5, help="# maximum aspect ratio used to detect and filter rectangular license plates")
+    ap.add_argument("-minAR", "--min_aspectratio", type=int, default=2, help="# minimum aspect ratio used to detect and filter rectangular license plates")
+    ap.add_argument("-maxAR", "--max_aspectratio", type=int, default=8, help="# maximum aspect ratio used to detect and filter rectangular license plates")
     ap.add_argument("-b", "--blocks", type=int, default=20, help="# of blocks for the pixelated blurring method")
     ap.add_argument("-m", "--searchmethod", type=str, default="Levenshtein", help="distance measure during the whitelist search")
     ap.add_argument("-t", "--threshold", type=int, default=1, help="distance threshold for the whitelist match")
@@ -72,9 +72,9 @@ if __name__ == '__main__':
 
         def run(self):
             image = self.inputLoad(as_dict=True)['image']  # quickly load input data
-            Locator = PlateLocator(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], debug=args["debug"]) 
-            candidates = Locator.run_candidates(image, keep=5)
-            (roi, lpCnt, licensePlate_col) = Locator.run_best_candidate(image, candidates, clearBorder=args["clear_border"])
+            Locator = PlateLocator(image, minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], debug=args["debug"]) 
+            candidates = Locator.run_candidates(keep=5)
+            (roi, lpCnt, licensePlate_col) = Locator.run_best_candidate(candidates, clearBorder=args["clear_border"])
             self.save({'roi_lpCnt': (roi, lpCnt, licensePlate_col),'image': image})   
 
     # DO OCR

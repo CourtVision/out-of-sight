@@ -1,33 +1,38 @@
 # import the necessary packages
 from skimage.segmentation import clear_border
-import numpy as np
 import imutils
-import cv2
+from cv2 import cvtColor, COLOR_BGR2GRAY, bilateralFilter, Canny, findContours, RETR_TREE, drawContours, \
+	 			boxPoints, minAreaRect, CHAIN_APPROX_SIMPLE , contourArea, arcLength, approxPolyDP, boundingRect, \
+				threshold, THRESH_BINARY_INV, THRESH_OTSU
 from utils.display import debug_imshow
 import logging
 logger = logging.getLogger(__name__)
 
 
 class PlateLocator:
-	def __init__(self, minAR: int = 4, maxAR: int = 5, debug: bool = False):
+	def __init__(self, image, minAR: int = 4, maxAR: int = 5, debug: bool = False):
 		"""
-		Store the minimum and maximum rectangular aspect ratio
-		values along with whether or not we are in debug mode
+		Stores the minimum and maximum rectangular aspect ratio
+		values along with whether or not we are in debug mode 
+		and the original image
 
 		Args:
 		------------
 			minAR (int): Minimum rectangular aspect ratio
 			maxAR (int): Maximum rectangular aspect ratio
+			image (img): Original image
 
 		Returns:
 		------------
-			None
+			The __init__ method resized version of the original image.
 		"""
 		self.minAR = minAR
 		self.maxAR = maxAR
 		self.debug = debug
+		self.image = imutils.resize(image, width=600)
 	
-	def run_candidates(self, image, keep: int = 5):
+
+	def run_candidates(self, keep: int = 5):
 		"""
 		Performs a blackhat morphological operation that will allow
 		us to reveal dark regions (i.e., text) on light backgrounds
@@ -43,74 +48,51 @@ class PlateLocator:
 		------------
 			candidates (list)  
 		"""
-		image = imutils.resize(image, width=600)
-		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-		rectKern = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
-		blackhat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, rectKern)
+		gray = cvtColor(self.image, COLOR_BGR2GRAY)
 		if self.debug:
-			debug_imshow(title="Blackhat", image=blackhat)
-
-		# next, find regions in the image that are light
-		# closing holes in image, then threshold
-		# with that we find large white rectangles 
-		squareKern = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-		light = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, squareKern)
-		light = cv2.threshold(light, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+			debug_imshow(title="Original", image=self.image)
+			debug_imshow(title="Gray", image=gray)
+		
+		# Edge-preserving smoothing
+		# https://www.geeksforgeeks.org/python-bilateral-filtering/
+		# It replaces the intensity of each pixel with a weighted average of intensity values from nearby pixels.
+		# The weights depend not only on Euclidean distance of pixels, but also on the radiometric differences
+		# (e.g., range differences, such as color intensity, depth distance, etc.). This preserves sharp edges.
+		# d: Diameter of each pixel neighborhood.
+		# sigmaColor: The greater the value, the colors farther to each other will start to get mixed.
+		# sigmaSpace: The greater its value, the more further pixels will mix together, given that their colors 
+		# lie within the sigmaColor range.
+		gray = bilateralFilter(gray, d=7, sigmaColor=20, sigmaSpace=20) 
 		if self.debug:
-			debug_imshow(title="Light Regions", image=light)
-
-		# compute the Scharr gradient representation of the blackhat
-		# Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate
-		# image in the x-direction and then scale the result back to the range [0, 255]
-		# The Sobel Operator is a discrete differentiation operator. It computes an approximation
-		# of the gradient of an image intensity function.
-		# kernerl=-1 means 3x3.
-		gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
-		gradX = np.absolute(gradX)
-		(minVal, maxVal) = (np.min(gradX), np.max(gradX))
-		gradX = 255 * ((gradX - minVal) / (maxVal - minVal))
-		gradX = gradX.astype("uint8")
+			debug_imshow(title="Gray filtered", image=gray)
+		
+		# Any edges with intensity gradient more than maxVal are sure to be edges 
+		# and those below minVal are sure to be non-edges, so discarded. 
+		# Those who lie between these two thresholds are classified edges or non-edges based on their connectivity. 
+		# If they are connected to "sure-edge" pixels, they are considered to be part of edges.
+		# https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html
+		edged = Canny(gray, threshold1=30, threshold2=200) 
 		if self.debug:
-			debug_imshow(title="Scharr", image=gradX)
-
-		# blur the gradient representation, applying a closing
-		# operation, and threshold the image using Otsu's method
-		gradX = cv2.GaussianBlur(gradX, (5, 5), 0)
-		gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKern)
-		thresh = cv2.threshold(gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+			debug_imshow(title="Edged", image=edged)
+		
+		# A curve joining all the continuous points (along the boundary), having same color or intensity.
+		# RETR_LIST: retrieve the contours but does not create any parent-child relationship.
+		# CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected.
+		contours = findContours(edged.copy(), RETR_TREE, CHAIN_APPROX_SIMPLE)
+		contours = imutils.grab_contours(contours)
+		candidates = sorted(contours, key=contourArea, reverse=True)[:keep]
 		if self.debug:
-			debug_imshow(title="Grad Thresh", image=thresh)
-
-		# perform a series of erosions and dilations to clean up the
-		# thresholded image
-		thresh = cv2.erode(thresh, None, iterations=2)
-		thresh = cv2.dilate(thresh, None, iterations=2)
-		if self.debug:
-			debug_imshow(title="Grad Erode/Dilate", image=thresh)
-
-		# take the bitwise AND between the threshold result and the light regions of the image
-		# The general usage is that you want to get a subset of an image defined by another image, typically referred to as a "mask".
-		# light image serves as our mask for a bitwise-AND between the thresholded result and the light regions 
-		# of the image to reveal the license plate candidates
-		thresh = cv2.bitwise_and(thresh, thresh, mask=light)
-		thresh = cv2.dilate(thresh, None, iterations=2)
-		thresh = cv2.erode(thresh, None, iterations=1)
-		if self.debug:
-			debug_imshow(title="Final", image=thresh, waitKey=True)
-
-		# find contours in the thresholded image and sort them by
-		# their size in descending order, keeping only the largest ones
-		cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-		cnts = imutils.grab_contours(cnts)
-		candidates = sorted(cnts, key=cv2.contourArea, reverse=True)[:keep]
-
+			image = self.image.copy()
+			for c in candidates:
+				drawContours(image, [c], -1, (0, 255, 0), 2)	
+			debug_imshow(title="Contours", image=image)
 		# return the list of contours
 		logger.info("Searching for candidate locations done.")  
 		print("Searching for candidate locations done.")
 		return candidates
 
 
-	def run_best_candidate(self, image, candidates, clearBorder: bool = False):
+	def run_best_candidate(self, candidates, clearBorder: bool = True):
 		"""
 		Gets the best position for the license plate out of candidates if they match the aspect ratio.
 
@@ -127,25 +109,34 @@ class PlateLocator:
 			licensePlate_col (img): Image of the plate
 		"""
 		# initialize the license plate contour and ROI
-		image = imutils.resize(image, width=600)
 		lpCnt = None
 		roi = None
 		# loop over the license plate candidate contours
 		for c in candidates:
-			# compute the bounding box of the contour and then use
+			# Calculates a contour perimeter i.e. the curve length
+			peri = arcLength(c, closed=True)
+			# The process of approximation of a shape of contour to another shape consisting of a lesser number
+			# of vertices in such a way that the distance between the contours of shapes is equal to the 
+			# specified precision or lesser than the specified precision is called approximation of a shape of the contour.
+			# https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm
+			# Epsilon: specifying the approximation accuracy, i.e. maximum distance between the original curve and its approximation 
+			approx = approxPolyDP(c, epsilon=0.010 * peri, closed=True)
+
+			# Computes the bounding box of the contour and then use
 			# the bounding box to derive the aspect ratio
-			(x, y, w, h) = cv2.boundingRect(c)
+			(x, y, w, h) = boundingRect(approx)
 			ar = w / float(h)
 
-			# check to see if the aspect ratio is rectangular
-			if ar >= self.minAR and ar <= self.maxAR:
+			# Checks to see if the aspect ratio is rectangular
+			if ar >= self.minAR and ar <= self.maxAR and len(approx) == 4:
 				# store the license plate contour and extract the
 				# license plate from the grayscale image and then threshold it
-				lpCnt = c
-				licensePlate_col = image[y:y + h, x:x + w]
-				licensePlate = cv2.cvtColor(licensePlate_col, cv2.COLOR_BGR2GRAY) 
-				#roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+				lpCnt = approx
+				licensePlate_col = self.image[y:y + h, x:x + w]
+				licensePlate = cvtColor(licensePlate_col, COLOR_BGR2GRAY) 
+				licensePlate = imutils.resize(licensePlate, width=300)
 				roi = licensePlate.copy()
+				# roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]
 				# check to see if we should clear any foreground
 				# pixels touching the border of the image
 				# (which typically, not but always, indicates noise)
