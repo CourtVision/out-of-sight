@@ -61,7 +61,7 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.reader    </h1>
                 
                         <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pytesseract</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span class="kn">from</span>  <span class="nn">pytesseract</span> <span class="kn">import</span> <span class="n">image_to_string</span>
 <span class="kn">from</span> <span class="nn">utils.display</span> <span class="kn">import</span> <span class="n">debug_imshow</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -74,16 +74,14 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.reader    </h1>
 
 <span class="sd">	Args:</span>
 <span class="sd">	------------</span>
-<span class="sd">		minAR (int): minimum rectangular aspect ratio</span>
-<span class="sd">		maxAR (int): maximum rectangular aspect ratio</span>
+<span class="sd">		oem (int): Tesseract engine</span>
+<span class="sd">		psm (int): Tesseract page segmentation mode</span>
 
 <span class="sd">	Returns:</span>
 <span class="sd">	------------</span>
 <span class="sd">		None</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">psm</span> <span class="o">=</span> <span class="n">psm</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">oem</span> <span class="o">=</span> <span class="n">oem</span>
@@ -116,9 +114,9 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.reader    </h1>
 		<span class="k">if</span> <span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="c1"># OCR the license plate</span>
 			<span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tesseract_options</span><span class="p">()</span>
-			<span class="n">lpText</span> <span class="o">=</span> <span class="n">pytesseract</span><span class="o">.</span><span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+			<span class="n">lpText</span> <span class="o">=</span> <span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
+				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate to OCR&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
 
 		<span class="c1"># return a text of the OCR&#39;d license plate</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OCRing of the plate location done.&quot;</span><span class="p">)</span>  
@@ -148,16 +146,14 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.reader    </h1>
 
 <span class="sd">	Args:</span>
 <span class="sd">	------------</span>
-<span class="sd">		minAR (int): minimum rectangular aspect ratio</span>
-<span class="sd">		maxAR (int): maximum rectangular aspect ratio</span>
+<span class="sd">		oem (int): Tesseract engine</span>
+<span class="sd">		psm (int): Tesseract page segmentation mode</span>
 
 <span class="sd">	Returns:</span>
 <span class="sd">	------------</span>
 <span class="sd">		None</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">psm</span> <span class="o">=</span> <span class="n">psm</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">oem</span> <span class="o">=</span> <span class="n">oem</span>
@@ -190,9 +186,9 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.reader    </h1>
 		<span class="k">if</span> <span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="c1"># OCR the license plate</span>
 			<span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tesseract_options</span><span class="p">()</span>
-			<span class="n">lpText</span> <span class="o">=</span> <span class="n">pytesseract</span><span class="o">.</span><span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+			<span class="n">lpText</span> <span class="o">=</span> <span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
+				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate to OCR&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
 
 		<span class="c1"># return a text of the OCR&#39;d license plate</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OCRing of the plate location done.&quot;</span><span class="p">)</span>  
@@ -208,8 +204,8 @@ values along with whether or not we are in debug mode</p>
 
 <h2 id="args">Args:</h2>
 
-<pre><code>    minAR (int): minimum rectangular aspect ratio
-    maxAR (int): maximum rectangular aspect ratio
+<pre><code>    oem (int): Tesseract engine
+    psm (int): Tesseract page segmentation mode
 </code></pre>
 
 <h2 id="returns">Returns:</h2>
@@ -223,20 +219,12 @@ values along with whether or not we are in debug mode</p>
                                         <div class="attr function"><a class="headerlink" href="#PlateReader.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">PlateReader</span><span class="signature">(
-    minAR: int = 4,
-    maxAR: int = 5,
-    psm: int = 7,
-    oem: int = 1,
-    debug: bool = False
-)</span>
+            <span class="name">PlateReader</span><span class="signature">(psm: int = 7, oem: int = 1, debug: bool = False)</span>
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
+            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">oem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">psm</span> <span class="o">=</span> <span class="n">psm</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">oem</span> <span class="o">=</span> <span class="n">oem</span>
@@ -274,9 +262,9 @@ values along with whether or not we are in debug mode</p>
 		<span class="k">if</span> <span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="c1"># OCR the license plate</span>
 			<span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tesseract_options</span><span class="p">()</span>
-			<span class="n">lpText</span> <span class="o">=</span> <span class="n">pytesseract</span><span class="o">.</span><span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+			<span class="n">lpText</span> <span class="o">=</span> <span class="n">image_to_string</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
+				<span class="n">debug_imshow</span><span class="p">(</span><span class="s2">&quot;License Plate to OCR&quot;</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span>
 
 		<span class="c1"># return a text of the OCR&#39;d license plate</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OCRing of the plate location done.&quot;</span><span class="p">)</span>  

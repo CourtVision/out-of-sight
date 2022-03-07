@@ -66,34 +66,39 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span><span class="c1"># import the necessary packages</span>
 <span class="kn">from</span> <span class="nn">skimage.segmentation</span> <span class="kn">import</span> <span class="n">clear_border</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">imutils</span>
-<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="kn">import</span> <span class="n">cvtColor</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">,</span> <span class="n">bilateralFilter</span><span class="p">,</span> <span class="n">Canny</span><span class="p">,</span> <span class="n">findContours</span><span class="p">,</span> <span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">drawContours</span><span class="p">,</span> \
+	 			<span class="n">CHAIN_APPROX_SIMPLE</span> <span class="p">,</span> <span class="n">contourArea</span><span class="p">,</span> <span class="n">arcLength</span><span class="p">,</span> <span class="n">approxPolyDP</span><span class="p">,</span> <span class="n">boundingRect</span><span class="p">,</span> \
+				<span class="n">threshold</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span><span class="p">,</span> <span class="n">THRESH_OTSU</span>
 <span class="kn">from</span> <span class="nn">utils.display</span> <span class="kn">import</span> <span class="n">debug_imshow</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">PlateLocator</span><span class="p">:</span>
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Store the minimum and maximum rectangular aspect ratio</span>
-<span class="sd">		values along with whether or not we are in debug mode</span>
+<span class="sd">		Stores the minimum and maximum rectangular aspect ratio</span>
+<span class="sd">		values along with whether or not we are in debug mode </span>
+<span class="sd">		and the original image</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
 <span class="sd">			minAR (int): Minimum rectangular aspect ratio</span>
 <span class="sd">			maxAR (int): Maximum rectangular aspect ratio</span>
+<span class="sd">			image (img): Original image</span>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			None</span>
+<span class="sd">			The __init__ method resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 	
-	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+
+	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Performs a blackhat morphological operation that will allow</span>
 <span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
@@ -109,74 +114,52 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 <span class="sd">		------------</span>
 <span class="sd">			candidates (list)  </span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-		<span class="n">gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
-		<span class="n">rectKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-		<span class="n">blackhat</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_BLACKHAT</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Blackhat&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">blackhat</span><span class="p">)</span>
-
-		<span class="c1"># next, find regions in the image that are light</span>
-		<span class="c1"># closing holes in image, then threshold</span>
-		<span class="c1"># with that we find large white rectangles </span>
-		<span class="n">squareKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">squareKern</span><span class="p">)</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">light</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Edge-preserving smoothing</span>
+		<span class="c1"># https://www.geeksforgeeks.org/python-bilateral-filtering/</span>
+		<span class="c1"># It replaces the intensity of each pixel with a weighted average of intensity values from nearby pixels.</span>
+		<span class="c1"># The weights depend not only on Euclidean distance of pixels, but also on the radiometric differences</span>
+		<span class="c1"># (e.g., range differences, such as color intensity, depth distance, etc.). This preserves sharp edges.</span>
+		<span class="c1"># d: Diameter of each pixel neighborhood.</span>
+		<span class="c1"># sigmaColor: The greater the value, the colors farther to each other will start to get mixed.</span>
+		<span class="c1"># sigmaSpace: The greater its value, the more further pixels will mix together, given that their colors </span>
+		<span class="c1"># lie within the sigmaColor range.</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">bilateralFilter</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigmaColor</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">sigmaSpace</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Light Regions&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-
-		<span class="c1"># compute the Scharr gradient representation of the blackhat</span>
-		<span class="c1"># Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate</span>
-		<span class="c1"># image in the x-direction and then scale the result back to the range [0, 255]</span>
-		<span class="c1"># The Sobel Operator is a discrete differentiation operator. It computes an approximation</span>
-		<span class="c1"># of the gradient of an image intensity function.</span>
-		<span class="c1"># kernerl=-1 means 3x3.</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Sobel</span><span class="p">(</span><span class="n">blackhat</span><span class="p">,</span> <span class="n">ddepth</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">CV_32F</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">gradX</span><span class="p">)</span>
-		<span class="p">(</span><span class="n">minVal</span><span class="p">,</span> <span class="n">maxVal</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">gradX</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">gradX</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="p">((</span><span class="n">gradX</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">maxVal</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">gradX</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray filtered&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Any edges with intensity gradient more than maxVal are sure to be edges </span>
+		<span class="c1"># and those below minVal are sure to be non-edges, so discarded. </span>
+		<span class="c1"># Those who lie between these two thresholds are classified edges or non-edges based on their connectivity. </span>
+		<span class="c1"># If they are connected to &quot;sure-edge&quot; pixels, they are considered to be part of edges.</span>
+		<span class="c1"># https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html</span>
+		<span class="n">edged</span> <span class="o">=</span> <span class="n">Canny</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">threshold1</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">threshold2</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Scharr&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gradX</span><span class="p">)</span>
-
-		<span class="c1"># blur the gradient representation, applying a closing</span>
-		<span class="c1"># operation, and threshold the image using Otsu&#39;s method</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Edged&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">edged</span><span class="p">)</span>
+		
+		<span class="c1"># A curve joining all the continuous points (along the boundary), having same color or intensity.</span>
+		<span class="c1"># RETR_LIST: retrieve the contours but does not create any parent-child relationship.</span>
+		<span class="c1"># CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected.</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">findContours</span><span class="p">(</span><span class="n">edged</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">contours</span><span class="p">)</span>
+		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
+		
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Thresh&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># perform a series of erosions and dilations to clean up the</span>
-		<span class="c1"># thresholded image</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Erode/Dilate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># take the bitwise AND between the threshold result and the light regions of the image</span>
-		<span class="c1"># The general usage is that you want to get a subset of an image defined by another image, typically referred to as a &quot;mask&quot;.</span>
-		<span class="c1"># light image serves as our mask for a bitwise-AND between the thresholded result and the light regions </span>
-		<span class="c1"># of the image to reveal the license plate candidates</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Final&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-		<span class="c1"># find contours in the thresholded image and sort them by</span>
-		<span class="c1"># their size in descending order, keeping only the largest ones</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">thresh</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">cnts</span><span class="p">)</span>
-		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cnts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
-
+			<span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+				<span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>	
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Contours&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
 		<span class="c1"># return the list of contours</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>  
 		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">candidates</span>
 
 
-	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
 
@@ -193,25 +176,34 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 <span class="sd">			licensePlate_col (img): Image of the plate</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c1"># initialize the license plate contour and ROI</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 		<span class="n">lpCnt</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="n">roi</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="c1"># loop over the license plate candidate contours</span>
 		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-			<span class="c1"># compute the bounding box of the contour and then use</span>
+			<span class="c1"># Calculates a contour perimeter i.e. the curve length</span>
+			<span class="n">peri</span> <span class="o">=</span> <span class="n">arcLength</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+			<span class="c1"># The process of approximation of a shape of contour to another shape consisting of a lesser number</span>
+			<span class="c1"># of vertices in such a way that the distance between the contours of shapes is equal to the </span>
+			<span class="c1"># specified precision or lesser than the specified precision is called approximation of a shape of the contour.</span>
+			<span class="c1"># https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm</span>
+			<span class="c1"># Epsilon: specifying the approximation accuracy, i.e. maximum distance between the original curve and its approximation </span>
+			<span class="n">approx</span> <span class="o">=</span> <span class="n">approxPolyDP</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.010</span> <span class="o">*</span> <span class="n">peri</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+			<span class="c1"># Computes the bounding box of the contour and then use</span>
 			<span class="c1"># the bounding box to derive the aspect ratio</span>
-			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">boundingRect</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span>
 			<span class="n">ar</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
 
-			<span class="c1"># check to see if the aspect ratio is rectangular</span>
-			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span><span class="p">:</span>
+			<span class="c1"># Checks to see if the aspect ratio is rectangular</span>
+			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
 				<span class="c1"># store the license plate contour and extract the</span>
 				<span class="c1"># license plate from the grayscale image and then threshold it</span>
-				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">c</span>
-				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
-				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
-				<span class="c1">#roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">approx</span>
+				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+				<span class="c1"># roi = licensePlate.copy()</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
@@ -223,11 +215,18 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">licensePlate</span><span class="p">)</span>
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;ROI&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 				<span class="k">break</span>
-
-		<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
-		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
-		<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">licensePlate</span>
+			<span class="k">if</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+				<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
+				<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+			<span class="n">licensePlate</span> <span class="o">=</span> <span class="kc">None</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>  
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -245,25 +244,29 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
             <details>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span><span class="k">class</span> <span class="nc">PlateLocator</span><span class="p">:</span>
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Store the minimum and maximum rectangular aspect ratio</span>
-<span class="sd">		values along with whether or not we are in debug mode</span>
+<span class="sd">		Stores the minimum and maximum rectangular aspect ratio</span>
+<span class="sd">		values along with whether or not we are in debug mode </span>
+<span class="sd">		and the original image</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
 <span class="sd">			minAR (int): Minimum rectangular aspect ratio</span>
 <span class="sd">			maxAR (int): Maximum rectangular aspect ratio</span>
+<span class="sd">			image (img): Original image</span>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			None</span>
+<span class="sd">			The __init__ method resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 	
-	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+
+	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Performs a blackhat morphological operation that will allow</span>
 <span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
@@ -279,74 +282,52 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 <span class="sd">		------------</span>
 <span class="sd">			candidates (list)  </span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-		<span class="n">gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
-		<span class="n">rectKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-		<span class="n">blackhat</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_BLACKHAT</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Blackhat&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">blackhat</span><span class="p">)</span>
-
-		<span class="c1"># next, find regions in the image that are light</span>
-		<span class="c1"># closing holes in image, then threshold</span>
-		<span class="c1"># with that we find large white rectangles </span>
-		<span class="n">squareKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">squareKern</span><span class="p">)</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">light</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Edge-preserving smoothing</span>
+		<span class="c1"># https://www.geeksforgeeks.org/python-bilateral-filtering/</span>
+		<span class="c1"># It replaces the intensity of each pixel with a weighted average of intensity values from nearby pixels.</span>
+		<span class="c1"># The weights depend not only on Euclidean distance of pixels, but also on the radiometric differences</span>
+		<span class="c1"># (e.g., range differences, such as color intensity, depth distance, etc.). This preserves sharp edges.</span>
+		<span class="c1"># d: Diameter of each pixel neighborhood.</span>
+		<span class="c1"># sigmaColor: The greater the value, the colors farther to each other will start to get mixed.</span>
+		<span class="c1"># sigmaSpace: The greater its value, the more further pixels will mix together, given that their colors </span>
+		<span class="c1"># lie within the sigmaColor range.</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">bilateralFilter</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigmaColor</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">sigmaSpace</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Light Regions&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-
-		<span class="c1"># compute the Scharr gradient representation of the blackhat</span>
-		<span class="c1"># Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate</span>
-		<span class="c1"># image in the x-direction and then scale the result back to the range [0, 255]</span>
-		<span class="c1"># The Sobel Operator is a discrete differentiation operator. It computes an approximation</span>
-		<span class="c1"># of the gradient of an image intensity function.</span>
-		<span class="c1"># kernerl=-1 means 3x3.</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Sobel</span><span class="p">(</span><span class="n">blackhat</span><span class="p">,</span> <span class="n">ddepth</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">CV_32F</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">gradX</span><span class="p">)</span>
-		<span class="p">(</span><span class="n">minVal</span><span class="p">,</span> <span class="n">maxVal</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">gradX</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">gradX</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="p">((</span><span class="n">gradX</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">maxVal</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">gradX</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray filtered&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Any edges with intensity gradient more than maxVal are sure to be edges </span>
+		<span class="c1"># and those below minVal are sure to be non-edges, so discarded. </span>
+		<span class="c1"># Those who lie between these two thresholds are classified edges or non-edges based on their connectivity. </span>
+		<span class="c1"># If they are connected to &quot;sure-edge&quot; pixels, they are considered to be part of edges.</span>
+		<span class="c1"># https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html</span>
+		<span class="n">edged</span> <span class="o">=</span> <span class="n">Canny</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">threshold1</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">threshold2</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Scharr&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gradX</span><span class="p">)</span>
-
-		<span class="c1"># blur the gradient representation, applying a closing</span>
-		<span class="c1"># operation, and threshold the image using Otsu&#39;s method</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Edged&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">edged</span><span class="p">)</span>
+		
+		<span class="c1"># A curve joining all the continuous points (along the boundary), having same color or intensity.</span>
+		<span class="c1"># RETR_LIST: retrieve the contours but does not create any parent-child relationship.</span>
+		<span class="c1"># CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected.</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">findContours</span><span class="p">(</span><span class="n">edged</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">contours</span><span class="p">)</span>
+		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
+		
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Thresh&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># perform a series of erosions and dilations to clean up the</span>
-		<span class="c1"># thresholded image</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Erode/Dilate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># take the bitwise AND between the threshold result and the light regions of the image</span>
-		<span class="c1"># The general usage is that you want to get a subset of an image defined by another image, typically referred to as a &quot;mask&quot;.</span>
-		<span class="c1"># light image serves as our mask for a bitwise-AND between the thresholded result and the light regions </span>
-		<span class="c1"># of the image to reveal the license plate candidates</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Final&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-		<span class="c1"># find contours in the thresholded image and sort them by</span>
-		<span class="c1"># their size in descending order, keeping only the largest ones</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">thresh</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">cnts</span><span class="p">)</span>
-		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cnts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
-
+			<span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+				<span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>	
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Contours&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
 		<span class="c1"># return the list of contours</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>  
 		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">candidates</span>
 
 
-	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
 
@@ -363,25 +344,34 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 <span class="sd">			licensePlate_col (img): Image of the plate</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c1"># initialize the license plate contour and ROI</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 		<span class="n">lpCnt</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="n">roi</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="c1"># loop over the license plate candidate contours</span>
 		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-			<span class="c1"># compute the bounding box of the contour and then use</span>
+			<span class="c1"># Calculates a contour perimeter i.e. the curve length</span>
+			<span class="n">peri</span> <span class="o">=</span> <span class="n">arcLength</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+			<span class="c1"># The process of approximation of a shape of contour to another shape consisting of a lesser number</span>
+			<span class="c1"># of vertices in such a way that the distance between the contours of shapes is equal to the </span>
+			<span class="c1"># specified precision or lesser than the specified precision is called approximation of a shape of the contour.</span>
+			<span class="c1"># https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm</span>
+			<span class="c1"># Epsilon: specifying the approximation accuracy, i.e. maximum distance between the original curve and its approximation </span>
+			<span class="n">approx</span> <span class="o">=</span> <span class="n">approxPolyDP</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.010</span> <span class="o">*</span> <span class="n">peri</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+			<span class="c1"># Computes the bounding box of the contour and then use</span>
 			<span class="c1"># the bounding box to derive the aspect ratio</span>
-			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">boundingRect</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span>
 			<span class="n">ar</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
 
-			<span class="c1"># check to see if the aspect ratio is rectangular</span>
-			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span><span class="p">:</span>
+			<span class="c1"># Checks to see if the aspect ratio is rectangular</span>
+			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
 				<span class="c1"># store the license plate contour and extract the</span>
 				<span class="c1"># license plate from the grayscale image and then threshold it</span>
-				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">c</span>
-				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
-				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
-				<span class="c1">#roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">approx</span>
+				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+				<span class="c1"># roi = licensePlate.copy()</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
@@ -393,11 +383,18 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">licensePlate</span><span class="p">)</span>
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;ROI&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 				<span class="k">break</span>
-
-		<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
-		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
-		<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">licensePlate</span>
+			<span class="k">if</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+				<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
+				<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+			<span class="n">licensePlate</span> <span class="o">=</span> <span class="kc">None</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>  
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -408,44 +405,49 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
                                         <div class="attr function"><a class="headerlink" href="#PlateLocator.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">PlateLocator</span><span class="signature">(minAR: int = 4, maxAR: int = 5, debug: bool = False)</span>
+            <span class="name">PlateLocator</span><span class="signature">(image, minAR: int = 4, maxAR: int = 5, debug: bool = False)</span>
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">minAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxAR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Store the minimum and maximum rectangular aspect ratio</span>
-<span class="sd">		values along with whether or not we are in debug mode</span>
+<span class="sd">		Stores the minimum and maximum rectangular aspect ratio</span>
+<span class="sd">		values along with whether or not we are in debug mode </span>
+<span class="sd">		and the original image</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
 <span class="sd">			minAR (int): Minimum rectangular aspect ratio</span>
 <span class="sd">			maxAR (int): Maximum rectangular aspect ratio</span>
+<span class="sd">			image (img): Original image</span>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			None</span>
+<span class="sd">			The __init__ method resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Store the minimum and maximum rectangular aspect ratio
-values along with whether or not we are in debug mode</p>
+            <div class="docstring"><p>Stores the minimum and maximum rectangular aspect ratio
+values along with whether or not we are in debug mode 
+and the original image</p>
 
 <h2 id="args">Args:</h2>
 
 <pre><code>    minAR (int): Minimum rectangular aspect ratio
     maxAR (int): Maximum rectangular aspect ratio
+    image (img): Original image
 </code></pre>
 
 <h2 id="returns">Returns:</h2>
 
-<pre><code>    None
+<pre><code>    The __init__ method resized version of the original image.
 </code></pre>
 </div>
 
@@ -456,12 +458,12 @@ values along with whether or not we are in debug mode</p>
 
         
             <span class="def">def</span>
-            <span class="name">run_candidates</span><span class="signature">(self, image, keep: int = 5)</span>:
+            <span class="name">run_candidates</span><span class="signature">(self, keep: int = 5)</span>:
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Performs a blackhat morphological operation that will allow</span>
 <span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
@@ -477,67 +479,45 @@ values along with whether or not we are in debug mode</p>
 <span class="sd">		------------</span>
 <span class="sd">			candidates (list)  </span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-		<span class="n">gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
-		<span class="n">rectKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-		<span class="n">blackhat</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_BLACKHAT</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Blackhat&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">blackhat</span><span class="p">)</span>
-
-		<span class="c1"># next, find regions in the image that are light</span>
-		<span class="c1"># closing holes in image, then threshold</span>
-		<span class="c1"># with that we find large white rectangles </span>
-		<span class="n">squareKern</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">squareKern</span><span class="p">)</span>
-		<span class="n">light</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">light</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Edge-preserving smoothing</span>
+		<span class="c1"># https://www.geeksforgeeks.org/python-bilateral-filtering/</span>
+		<span class="c1"># It replaces the intensity of each pixel with a weighted average of intensity values from nearby pixels.</span>
+		<span class="c1"># The weights depend not only on Euclidean distance of pixels, but also on the radiometric differences</span>
+		<span class="c1"># (e.g., range differences, such as color intensity, depth distance, etc.). This preserves sharp edges.</span>
+		<span class="c1"># d: Diameter of each pixel neighborhood.</span>
+		<span class="c1"># sigmaColor: The greater the value, the colors farther to each other will start to get mixed.</span>
+		<span class="c1"># sigmaSpace: The greater its value, the more further pixels will mix together, given that their colors </span>
+		<span class="c1"># lie within the sigmaColor range.</span>
+		<span class="n">gray</span> <span class="o">=</span> <span class="n">bilateralFilter</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigmaColor</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">sigmaSpace</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Light Regions&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-
-		<span class="c1"># compute the Scharr gradient representation of the blackhat</span>
-		<span class="c1"># Scharr gradient will detect edges in the image and emphasize the boundaries of the characters in the license plate</span>
-		<span class="c1"># image in the x-direction and then scale the result back to the range [0, 255]</span>
-		<span class="c1"># The Sobel Operator is a discrete differentiation operator. It computes an approximation</span>
-		<span class="c1"># of the gradient of an image intensity function.</span>
-		<span class="c1"># kernerl=-1 means 3x3.</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Sobel</span><span class="p">(</span><span class="n">blackhat</span><span class="p">,</span> <span class="n">ddepth</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">CV_32F</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">gradX</span><span class="p">)</span>
-		<span class="p">(</span><span class="n">minVal</span><span class="p">,</span> <span class="n">maxVal</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">gradX</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">gradX</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="p">((</span><span class="n">gradX</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">maxVal</span> <span class="o">-</span> <span class="n">minVal</span><span class="p">))</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">gradX</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gray filtered&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gray</span><span class="p">)</span>
+		
+		<span class="c1"># Any edges with intensity gradient more than maxVal are sure to be edges </span>
+		<span class="c1"># and those below minVal are sure to be non-edges, so discarded. </span>
+		<span class="c1"># Those who lie between these two thresholds are classified edges or non-edges based on their connectivity. </span>
+		<span class="c1"># If they are connected to &quot;sure-edge&quot; pixels, they are considered to be part of edges.</span>
+		<span class="c1"># https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html</span>
+		<span class="n">edged</span> <span class="o">=</span> <span class="n">Canny</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">threshold1</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">threshold2</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Scharr&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">gradX</span><span class="p">)</span>
-
-		<span class="c1"># blur the gradient representation, applying a closing</span>
-		<span class="c1"># operation, and threshold the image using Otsu&#39;s method</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-		<span class="n">gradX</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">rectKern</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">gradX</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Edged&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">edged</span><span class="p">)</span>
+		
+		<span class="c1"># A curve joining all the continuous points (along the boundary), having same color or intensity.</span>
+		<span class="c1"># RETR_LIST: retrieve the contours but does not create any parent-child relationship.</span>
+		<span class="c1"># CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected.</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">findContours</span><span class="p">(</span><span class="n">edged</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+		<span class="n">contours</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">contours</span><span class="p">)</span>
+		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
+		
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Thresh&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># perform a series of erosions and dilations to clean up the</span>
-		<span class="c1"># thresholded image</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grad Erode/Dilate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
-
-		<span class="c1"># take the bitwise AND between the threshold result and the light regions of the image</span>
-		<span class="c1"># The general usage is that you want to get a subset of an image defined by another image, typically referred to as a &quot;mask&quot;.</span>
-		<span class="c1"># light image serves as our mask for a bitwise-AND between the thresholded result and the light regions </span>
-		<span class="c1"># of the image to reveal the license plate candidates</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">light</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-		<span class="n">thresh</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Final&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-		<span class="c1"># find contours in the thresholded image and sort them by</span>
-		<span class="c1"># their size in descending order, keeping only the largest ones</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">thresh</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
-		<span class="n">cnts</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">grab_contours</span><span class="p">(</span><span class="n">cnts</span><span class="p">)</span>
-		<span class="n">candidates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cnts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">contourArea</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">keep</span><span class="p">]</span>
-
+			<span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+				<span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>	
+			<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Contours&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
 		<span class="c1"># return the list of contours</span>
 		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>  
 		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for candidate locations done.&quot;</span><span class="p">)</span>
@@ -570,12 +550,12 @@ difference between the closing of the input image and input image
 
         
             <span class="def">def</span>
-            <span class="name">run_best_candidate</span><span class="signature">(self, image, candidates, clearBorder: bool = False)</span>:
+            <span class="name">run_best_candidate</span><span class="signature">(self, candidates, clearBorder: bool = True)</span>:
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
 
@@ -592,25 +572,34 @@ difference between the closing of the input image and input image
 <span class="sd">			licensePlate_col (img): Image of the plate</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c1"># initialize the license plate contour and ROI</span>
-		<span class="n">image</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 		<span class="n">lpCnt</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="n">roi</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="c1"># loop over the license plate candidate contours</span>
 		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-			<span class="c1"># compute the bounding box of the contour and then use</span>
+			<span class="c1"># Calculates a contour perimeter i.e. the curve length</span>
+			<span class="n">peri</span> <span class="o">=</span> <span class="n">arcLength</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+			<span class="c1"># The process of approximation of a shape of contour to another shape consisting of a lesser number</span>
+			<span class="c1"># of vertices in such a way that the distance between the contours of shapes is equal to the </span>
+			<span class="c1"># specified precision or lesser than the specified precision is called approximation of a shape of the contour.</span>
+			<span class="c1"># https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm</span>
+			<span class="c1"># Epsilon: specifying the approximation accuracy, i.e. maximum distance between the original curve and its approximation </span>
+			<span class="n">approx</span> <span class="o">=</span> <span class="n">approxPolyDP</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.010</span> <span class="o">*</span> <span class="n">peri</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+			<span class="c1"># Computes the bounding box of the contour and then use</span>
 			<span class="c1"># the bounding box to derive the aspect ratio</span>
-			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+			<span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="n">boundingRect</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span>
 			<span class="n">ar</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
 
-			<span class="c1"># check to see if the aspect ratio is rectangular</span>
-			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span><span class="p">:</span>
+			<span class="c1"># Checks to see if the aspect ratio is rectangular</span>
+			<span class="k">if</span> <span class="n">ar</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="ow">and</span> <span class="n">ar</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
 				<span class="c1"># store the license plate contour and extract the</span>
 				<span class="c1"># license plate from the grayscale image and then threshold it</span>
-				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">c</span>
-				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
-				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
-				<span class="c1">#roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="n">lpCnt</span> <span class="o">=</span> <span class="n">approx</span>
+				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
+				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+				<span class="c1"># roi = licensePlate.copy()</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
@@ -622,11 +611,18 @@ difference between the closing of the input image and input image
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;License Plate&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">licensePlate</span><span class="p">)</span>
 					<span class="n">debug_imshow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;ROI&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">waitKey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 				<span class="k">break</span>
-
-		<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
-		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
-		<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">licensePlate</span>
+			<span class="k">if</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+				<span class="c1"># return a 3-tuple of the license plate, ROI and the contour associated with it</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>  
+				<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done.&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">lpCnt</span><span class="p">,</span> <span class="n">licensePlate_col</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+			<span class="n">licensePlate</span> <span class="o">=</span> <span class="kc">None</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>  
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Searching for the location done. No license plate found.&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
         </details>
