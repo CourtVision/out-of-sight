@@ -1,11 +1,11 @@
 # `out-of-sight`:eyes:
 ## This is a pet project for fun :blush:
-- using CV & NLP 
+- Using CV & NLP 
     - to recognize & anonymize license plates 
-    - and to search, find, and match the plate text within a whitlelist DB
+    - and to search, find, and match the plate text within a whitlelist DB.
 - Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
-- Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch[^1]
-    - The license plate locator part is based on Simon Kiruri´s post on https://www.section.io [^2]
+    - Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch.[^1]
+    - The license plate locator part is based on Simon Kiruri´s post.[^2]
 
 ## Main tasks executed by [`app.py`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/app.py):
 - :world_map:[`Locator`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/locator.py): finds "license plate like" rectangles on the input image
@@ -50,7 +50,7 @@
     - See the ['Dockerfile'](https://github.com/CourtVision/out-of-sight/blob/main/Dockerfile)
 
 ## TODO
-- Test other input imagess
+- Test other input imagess --> done: https://makeml.app/datasets/cars-license-plates
 
 ## License
 [License](https://github.com/CourtVision/out-of-sight/blob/main/outsight/LICENSE)
