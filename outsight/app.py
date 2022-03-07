@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 (roi, lpCnt, licensePlate_col) = self.inputLoad(as_dict=True)['roi_lpCnt']
                 if licensePlate_col.any():
                     image = self.inputLoad(as_dict=True)['image']
-                    Reader = PlateReader(minAR=args["min_aspectratio"], maxAR=args["max_aspectratio"], psm=7, oem=1, debug=args["debug"]) 
+                    Reader = PlateReader(psm=7, oem=1, debug=args["debug"]) 
                     lpText = Reader.runOCR(roi)     
             except:
                 (roi, lpCnt, licensePlate_col) = (None, None, None)

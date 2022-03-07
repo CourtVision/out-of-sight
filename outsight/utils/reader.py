@@ -1,4 +1,4 @@
-import pytesseract
+from  pytesseract import image_to_string
 from utils.display import debug_imshow
 import logging
 logger = logging.getLogger(__name__)
@@ -11,16 +11,14 @@ class PlateReader:
 
 	Args:
 	------------
-		minAR (int): minimum rectangular aspect ratio
-		maxAR (int): maximum rectangular aspect ratio
+		oem (int): Tesseract engine
+		psm (int): Tesseract page segmentation mode
 
 	Returns:
 	------------
 		None
 	"""
-	def __init__(self, minAR: int = 4, maxAR: int = 5, psm: int = 7, oem: int = 1, debug: bool = False):
-		self.minAR = minAR
-		self.maxAR = maxAR
+	def __init__(self, psm: int = 7, oem: int = 1, debug: bool = False):
 		self.debug = debug
 		self.psm = psm
 		self.oem = oem
@@ -53,9 +51,9 @@ class PlateReader:
 		if roi is not None:
 			# OCR the license plate
 			options = self._build_tesseract_options()
-			lpText = pytesseract.image_to_string(roi, config=options)
+			lpText = image_to_string(roi, config=options)
 			if self.debug:
-				debug_imshow("License Plate", roi)
+				debug_imshow("License Plate to OCR", roi)
 
 		# return a text of the OCR'd license plate
 		logger.info("OCRing of the plate location done.")  

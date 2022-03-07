@@ -2,7 +2,7 @@
 from skimage.segmentation import clear_border
 import imutils
 from cv2 import cvtColor, COLOR_BGR2GRAY, bilateralFilter, Canny, findContours, RETR_TREE, drawContours, \
-	 			boxPoints, minAreaRect, CHAIN_APPROX_SIMPLE , contourArea, arcLength, approxPolyDP, boundingRect, \
+	 			CHAIN_APPROX_SIMPLE , contourArea, arcLength, approxPolyDP, boundingRect, \
 				threshold, THRESH_BINARY_INV, THRESH_OTSU
 from utils.display import debug_imshow
 import logging
@@ -62,7 +62,7 @@ class PlateLocator:
 		# sigmaColor: The greater the value, the colors farther to each other will start to get mixed.
 		# sigmaSpace: The greater its value, the more further pixels will mix together, given that their colors 
 		# lie within the sigmaColor range.
-		gray = bilateralFilter(gray, d=7, sigmaColor=20, sigmaSpace=20) 
+		gray = bilateralFilter(gray, d=7, sigmaColor=15, sigmaSpace=15) 
 		if self.debug:
 			debug_imshow(title="Gray filtered", image=gray)
 		
@@ -81,6 +81,7 @@ class PlateLocator:
 		contours = findContours(edged.copy(), RETR_TREE, CHAIN_APPROX_SIMPLE)
 		contours = imutils.grab_contours(contours)
 		candidates = sorted(contours, key=contourArea, reverse=True)[:keep]
+		
 		if self.debug:
 			image = self.image.copy()
 			for c in candidates:
@@ -134,9 +135,9 @@ class PlateLocator:
 				lpCnt = approx
 				licensePlate_col = self.image[y:y + h, x:x + w]
 				licensePlate = cvtColor(licensePlate_col, COLOR_BGR2GRAY) 
-				licensePlate = imutils.resize(licensePlate, width=300)
-				roi = licensePlate.copy()
-				# roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]
+				licensePlate = imutils.resize(licensePlate, width=400)
+				# roi = licensePlate.copy()
+				roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]
 				# check to see if we should clear any foreground
 				# pixels touching the border of the image
 				# (which typically, not but always, indicates noise)
