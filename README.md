@@ -31,8 +31,8 @@
     -  switch for debugging (`default = --no-debug`)
 
 ## Basic usage
-`docker build -f Dockerfile -t outsight-image --no-cache .`
-`docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
+- `docker build -f Dockerfile -t outsight-image --no-cache .`
+- `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
 ## Module documentation
 [`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
