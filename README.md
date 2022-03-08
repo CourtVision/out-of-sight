@@ -14,6 +14,11 @@
 - :see_no_evil:[`Anonymizer`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/anonymizer.py): blurs the license plate 
 - :scroll:[`Searcher`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/utils/searcher.py): checks the given license plate´s text in a list of whitlisted plates with an arbitrary degree of similarity
 
+## Workflow execution with [`d6tflow`](https://github.com/d6t/d6tflow)
+- Given a successful localization
+    - the other tasks can be executed independently
+    - governed by the above Python arguments in the `docker run` command
+
 ## Docker container
 - Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
 - Arguments include:
@@ -25,12 +30,8 @@
     -  pixelization parameter , # of blocks for the blurring method (`-b`), `default = 20`
     -  switch for debugging (`default = --no-debug`)
 
-## Workflow execution with [`d6tflow`](https://github.com/d6t/d6tflow)
-- Given a successful localization
-    - the other tasks can be executed independently
-    - governed by the above Python arguments in the `docker run` command
-
 ## Basic usage
+`docker build -f Dockerfile -t outsight-image --no-cache .`
 `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
 ## Module documentation
