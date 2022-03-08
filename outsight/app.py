@@ -28,7 +28,7 @@ if __name__ == '__main__':
     ap.add_argument("-b", "--blocks", type=int, default=20, help="# of blocks for the pixelated blurring method")
     ap.add_argument("-m", "--searchmethod", type=str, default="Levenshtein", help="distance measure during the whitelist search")
     ap.add_argument("-t", "--threshold", type=int, default=1, help="distance threshold for the whitelist match")
-    ap.add_argument("-c", "--clear-border", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether to clear border pixels before OCR'ing")
+    ap.add_argument("-c", "--clear-border", type=bool, default=False, action=argparse.BooleanOptionalAction, help="whether to clear border pixels before OCR'ing")
     ap.add_argument("-d", "--debug", type=bool, default=True, action=argparse.BooleanOptionalAction, help="whether to show additional visualizations")
 
     args = vars(ap.parse_args())

@@ -136,8 +136,8 @@ class PlateLocator:
 				licensePlate_col = self.image[y:y + h, x:x + w]
 				licensePlate = cvtColor(licensePlate_col, COLOR_BGR2GRAY) 
 				licensePlate = imutils.resize(licensePlate, width=400)
-				# roi = licensePlate.copy()
-				roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]
+				roi = licensePlate.copy()
+				# roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]
 				# check to see if we should clear any foreground
 				# pixels touching the border of the image
 				# (which typically, not but always, indicates noise)

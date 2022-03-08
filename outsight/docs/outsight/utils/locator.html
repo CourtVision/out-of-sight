@@ -90,7 +90,7 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			The __init__ method resized version of the original image.</span>
+<span class="sd">			The __init__ method stores the resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
@@ -202,8 +202,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
-				<span class="c1"># roi = licensePlate.copy()</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="c1"># roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
@@ -258,7 +258,7 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			The __init__ method resized version of the original image.</span>
+<span class="sd">			The __init__ method stores the resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
@@ -370,8 +370,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
-				<span class="c1"># roi = licensePlate.copy()</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="c1"># roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
@@ -424,7 +424,7 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 <span class="sd">		Returns:</span>
 <span class="sd">		------------</span>
-<span class="sd">			The __init__ method resized version of the original image.</span>
+<span class="sd">			The __init__ method stores the resized version of the original image.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">minAR</span> <span class="o">=</span> <span class="n">minAR</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">maxAR</span> <span class="o">=</span> <span class="n">maxAR</span>
@@ -447,7 +447,7 @@ and the original image</p>
 
 <h2 id="returns">Returns:</h2>
 
-<pre><code>    The __init__ method resized version of the original image.
+<pre><code>    The __init__ method stores the resized version of the original image.
 </code></pre>
 </div>
 
@@ -598,8 +598,8 @@ difference between the closing of the input image and input image
 				<span class="n">licensePlate_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">licensePlate_col</span><span class="p">,</span> <span class="n">COLOR_BGR2GRAY</span><span class="p">)</span> 
 				<span class="n">licensePlate</span> <span class="o">=</span> <span class="n">imutils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
-				<span class="c1"># roi = licensePlate.copy()</span>
-				<span class="n">roi</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">(</span><span class="n">licensePlate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">THRESH_BINARY_INV</span> <span class="o">|</span> <span class="n">THRESH_OTSU</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+				<span class="n">roi</span> <span class="o">=</span> <span class="n">licensePlate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+				<span class="c1"># roi = threshold(licensePlate, 0, 255, THRESH_BINARY_INV | THRESH_OTSU)[1]</span>
 				<span class="c1"># check to see if we should clear any foreground</span>
 				<span class="c1"># pixels touching the border of the image</span>
 				<span class="c1"># (which typically, not but always, indicates noise)</span>
