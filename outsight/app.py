@@ -53,7 +53,6 @@ if __name__ == '__main__':
     ## Setup workflow ##
 
     # DO get training data and save it
-    logging.info("Start getting the image...")
     class GetData(d6tflow.tasks.TaskPickle):
         """
         Flow step data read from disk.
@@ -66,7 +65,6 @@ if __name__ == '__main__':
             self.save({'image': image}) # persist/cache input data
 
     # DO Locate best candidate
-    logging.info("Start searching for license plate...")
     @d6tflow.requires(GetData)  # define dependency
     class Locate(d6tflow.tasks.TaskPickle):
 
@@ -78,7 +76,6 @@ if __name__ == '__main__':
             self.save({'roi_lpCnt': (roi, lpCnt, licensePlate_col),'image': image})   
 
     # DO OCR
-    logging.info("Start OCRing...")
     @d6tflow.requires(Locate)  
     class Read(d6tflow.tasks.TaskPickle):
 
@@ -97,7 +94,6 @@ if __name__ == '__main__':
             self.save({'lpText_lpCnt': (lpText, lpCnt), 'image': image, 'roi': roi})   
 
     # DO Display
-    logging.info("Save recognized image...")
     @d6tflow.requires(Read)  
     class DisplayImageOCR(d6tflow.tasks.TaskPickle):
 
@@ -114,7 +110,6 @@ if __name__ == '__main__':
                 logging.info("No license plate to display.")
 
     # DO Anonymization
-    logging.info("Save ananymized image...")
     @d6tflow.requires(Locate)  
     class Anonymize(d6tflow.tasks.TaskPickle):
 
@@ -130,7 +125,6 @@ if __name__ == '__main__':
                 logging.info("No license plate to anonymize.")
 
     # DO Search plate in Whitelist
-    logging.info("Looking for current license plate in the list of whitelisted ones...")
     @d6tflow.requires(Read)  
     class Search(d6tflow.tasks.TaskPickle):
 
@@ -147,7 +141,7 @@ if __name__ == '__main__':
 
 
     ## Define workflow manager ##
-    d6tflow.settings.log_level = 'INFO'
+    d6tflow.settings.log_level = 'ERROR'
     flow = d6tflow.Workflow()
     flow.preview(DisplayImageOCR)
 
