@@ -23,8 +23,8 @@
 - Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
 - Arguments include:
     -  task(s) to be executed (`-w`), `choices=['all', 'OCR', 'Whitelist', 'Anonymize']`
-    -  minimum aspect ratio used to detect and filter rectangular license plates (`-minAR`), `default=4`
-    -  maximum aspect ratio used to detect and filter rectangular license plates (`-maxAR`), `default=5`
+    -  minimum aspect ratio used to detect and filter rectangular license plates (`-minAR`), `default=2`
+    -  maximum aspect ratio used to detect and filter rectangular license plates (`-maxAR`), `default=8`
     -  threshold for the Levensthein distance of the whitelist comparision (`-t`), `default = 1`
     -  distance measure during the whitelist search (`-m`), `default = 'Levensthein'`
     -  pixelization parameter , # of blocks for the blurring method (`-b`), `default = 20`
