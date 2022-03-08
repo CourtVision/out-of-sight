@@ -24,7 +24,7 @@ class PlateLocator:
 
 		Returns:
 		------------
-			The __init__ method resized version of the original image.
+			The __init__ method stores the resized version of the original image.
 		"""
 		self.minAR = minAR
 		self.maxAR = maxAR
