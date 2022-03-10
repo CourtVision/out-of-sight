@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 class PlateReader:
 	"""
 	Class for performing OCR on the selected location of the image
-	Store the minimum and maximum rectangular aspect ratio & Tesseract options psm and model type
+	Stores the minimum and maximum rectangular aspect ratio & Tesseract options psm and model type
 	values along with whether or not we are in debug mode
 
 	Args:

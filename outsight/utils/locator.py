@@ -34,10 +34,8 @@ class PlateLocator:
 
 	def run_candidates(self, keep: int = 5):
 		"""
-		Performs a blackhat morphological operation that will allow
-		us to reveal dark regions (i.e., text) on light backgrounds
-		difference between the closing of the input image and input image
-		(i.e., the license plate itself).
+		Preprocesses image (edge-preserving smoothing), finds edges and contours.
+		These are then sorted by area in a descending order.
 
 		Args:
 		------------
@@ -95,7 +93,8 @@ class PlateLocator:
 
 	def run_best_candidate(self, candidates, clearBorder: bool = True):
 		"""
-		Gets the best position for the license plate out of candidates if they match the aspect ratio.
+		Gets the best position for the license plate out of candidates if they match the aspect ratio
+		and the number of edges (4) of the poligon.
 
 		Args:
 		------------

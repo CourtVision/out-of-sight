@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 class PlateSearcher():
     """
-    Class for the regex layer.
+    Class to compare a string with a whitlist of strings.
     
     Args:
     ------------

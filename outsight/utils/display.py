@@ -23,6 +23,7 @@ def _cleanup_text(text: str):
 def ocrout(lpText: str, lpCnt, image, outpath: str, debug: bool = False):
     """
     Persist the original image with the superimposed recognized text and contour.
+    In debug mode shows image.
 
     Args:
     ------------

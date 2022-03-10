@@ -100,10 +100,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Performs a blackhat morphological operation that will allow</span>
-<span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
-<span class="sd">		difference between the closing of the input image and input image</span>
-<span class="sd">		(i.e., the license plate itself).</span>
+<span class="sd">		Preprocesses image (edge-preserving smoothing), finds edges and contours.</span>
+<span class="sd">		These are then sorted by area in a descending order.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -161,7 +159,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
+<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio</span>
+<span class="sd">		and the number of edges (4) of the poligon.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -268,10 +267,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Performs a blackhat morphological operation that will allow</span>
-<span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
-<span class="sd">		difference between the closing of the input image and input image</span>
-<span class="sd">		(i.e., the license plate itself).</span>
+<span class="sd">		Preprocesses image (edge-preserving smoothing), finds edges and contours.</span>
+<span class="sd">		These are then sorted by area in a descending order.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -329,7 +326,8 @@ outsight<wbr>.<a href="./../utils.html">utils</a><wbr>.locator    </h1>
 
 	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
+<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio</span>
+<span class="sd">		and the number of edges (4) of the poligon.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -465,10 +463,8 @@ and the original image</p>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Performs a blackhat morphological operation that will allow</span>
-<span class="sd">		us to reveal dark regions (i.e., text) on light backgrounds</span>
-<span class="sd">		difference between the closing of the input image and input image</span>
-<span class="sd">		(i.e., the license plate itself).</span>
+<span class="sd">		Preprocesses image (edge-preserving smoothing), finds edges and contours.</span>
+<span class="sd">		These are then sorted by area in a descending order.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -526,10 +522,8 @@ and the original image</p>
 
         </details>
 
-            <div class="docstring"><p>Performs a blackhat morphological operation that will allow
-us to reveal dark regions (i.e., text) on light backgrounds
-difference between the closing of the input image and input image
-(i.e., the license plate itself).</p>
+            <div class="docstring"><p>Preprocesses image (edge-preserving smoothing), finds edges and contours.
+These are then sorted by area in a descending order.</p>
 
 <h2 id="args">Args:</h2>
 
@@ -557,7 +551,8 @@ difference between the closing of the input image and input image
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span>	<span class="k">def</span> <span class="nf">run_best_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">clearBorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio.</span>
+<span class="sd">		Gets the best position for the license plate out of candidates if they match the aspect ratio</span>
+<span class="sd">		and the number of edges (4) of the poligon.</span>
 
 <span class="sd">		Args:</span>
 <span class="sd">		------------</span>
@@ -627,7 +622,8 @@ difference between the closing of the input image and input image
 
         </details>
 
-            <div class="docstring"><p>Gets the best position for the license plate out of candidates if they match the aspect ratio.</p>
+            <div class="docstring"><p>Gets the best position for the license plate out of candidates if they match the aspect ratio
+and the number of edges (4) of the poligon.</p>
 
 <h2 id="args">Args:</h2>
 
