@@ -51,7 +51,8 @@
     - See the ['Dockerfile'](https://github.com/CourtVision/out-of-sight/blob/main/Dockerfile)
 
 ## TODO
-- Test other input imagess --> done: https://makeml.app/datasets/cars-license-plates
+- Test some other input images --> done: https://makeml.app/datasets/cars-license-plates
+- Maybe in the future, experiment with Deep Learning based object detection methods.
 
 ## License
 [License](https://github.com/CourtVision/out-of-sight/blob/main/outsight/LICENSE)
