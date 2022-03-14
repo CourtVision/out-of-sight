@@ -18,7 +18,7 @@
 - Given a successful localization
     - the other tasks can be executed independently
     - governed by the above Python arguments in the `docker run` command
-![Workflow](/workflow.png)
+![Workflow](/readme_assets/workflow.png)
 
 ## Docker container
 - Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
@@ -36,7 +36,7 @@
 - `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
 ## Future Azure Architecture
-![Azure Architecture](/architecture.png)
+![Azure Architecture](/readme_assets/architecture.png)
 #### This section is baed on the blog posts of Johan Hostens[^3] & Dr Basim Majeed[^4]
 
 - After building the Docker image of the Python script, the second step involves registering and uploading the container image with the Azure Container Registry. 
