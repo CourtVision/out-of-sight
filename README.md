@@ -18,6 +18,7 @@
 - Given a successful localization
     - the other tasks can be executed independently
     - governed by the above Python arguments in the `docker run` command
+![Workflow](/workflow.png)
 
 ## Docker container
 - Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
