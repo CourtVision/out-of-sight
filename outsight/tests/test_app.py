@@ -6,7 +6,7 @@ module_path = Path(os.path.join(Path(__file__).parents[2], 'outsight')).absolute
 sys.path.append(str(module_path))  
 import app
 
-class TestFactorial(unittest.TestCase):
+class TestImport(unittest.TestCase):
     """
     Our basic test class
     """
