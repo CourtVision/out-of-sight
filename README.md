@@ -36,6 +36,14 @@
 
 ## Future Azure Architecture
 ![Azure Architecture](/architecture.png)
+#### This section is baed on the blog posts of Johan Hostens[^3] & Dr Basim Majeed[^4]
+
+- After building the Docker image of the Python script, the second step involves registering and uploading the container image with the Azure Container Registry. 
+The third step is about building the workflow using Azure Logic Apps. With the recent addition of Container Instance Group connectors, Logic Apps can control the creation of a Container Instances inside container groups, monitor the container state to detect success of execution and then delete the container and the associated container group. By ensuring that the container is only active for the amount of time necessary to complete the task, charges are minimised.
+
+- There are many trigger types that can be used to start the Logic App including webhooks, http notifications and timed events, allowing the workflow to integrate the Python script execution with external events. When the Logic App receives the trigger event it creates a Container Group and a Container inside the group based on the image retrieved from the registry. A loop is then started that monitors the state of the Container Group until it has succeeded (indicating that the Python script has completed). The last step is to delete the Container Group.[^3] 
+
+- We’ll use an Azure key vault to store the primary key of storage account and a managed identity to authenticate the Azure Container Instance with the key vault. During local development, we’ll use environment variables for authentication. The Azure file share will be mounted in the container. The files within this file share will appear as if they were local. It is important to know that files within an ACI are not persistent, but can be made persistent by mounting an Azure file share and storing the files in the mounted directory.[^4]
 
 ## Module documentation
 [`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
@@ -69,3 +77,9 @@
 
 [^2]: License Plate Detection And Recognition Using OpenCv And Pytesseract (accessed: 07.03.2022)
       -  https://www.section.io/engineering-education/license-plate-detection-and-recognition-using-opencv-and-pytesseract/
+
+[^3]: Running Python scripts on demand with Azure Container Instances and Azure Logic Apps (accessed: 14.03.2022)
+      -  https://cloudblogs.microsoft.com/industry-blog/en-gb/technetuk/2020/02/27/running-python-scripts-on-demand-with-azure-container-instances-and-azure-logic-apps/
+
+[^4]: Running python scripts on azure with azure container instances (accessed: 14.03.2022)
+      - https://kohera.be/tutorials-2/running-python-scripts-on-azure-with-azure-container-instances/
