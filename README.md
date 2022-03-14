@@ -34,6 +34,9 @@
 - `docker build -f Dockerfile -t outsight-image --no-cache .`
 - `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
+## Future Azure Architecture
+![Azure Architecture](/architecture.png)
+
 ## Module documentation
 [`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
 
