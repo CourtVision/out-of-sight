@@ -68,7 +68,7 @@ The third step is about building the workflow using Azure Logic Apps. With the r
 ## License
 [License](https://github.com/CourtVision/out-of-sight/blob/main/outsight/LICENSE)
 
-
+## References
 [^1]: Tutorials in blog posts of Adrian Rosebrock - PyImageSearch (accessed: 07.02.2022)
       - https://www.pyimagesearch.com/2018/09/17/opencv-ocr-and-text-recognition-with-tesseract/
       - https://www.pyimagesearch.com/2019/12/02/opencv-vehicle-detection-tracking-and-speed-estimation/
