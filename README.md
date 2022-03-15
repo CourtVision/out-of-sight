@@ -4,7 +4,7 @@
     - to recognize & anonymize license plates 
     - and to search, find, and match the plate text within a whitlelist DB.
 - Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
-    - Most of the CV & NLP code is based on from Adrian Rosebrock´s blog posts on PyImageSearch.[^1]
+    - Most of the CV & OCR code is based on Adrian Rosebrock´s blog posts on PyImageSearch.[^1]
     - The license plate locator part is based on Simon Kiruri´s post.[^2]
 
 ## Main tasks executed by [`app.py`](https://github.com/CourtVision/out-of-sight/blob/main/outsight/app.py):
