@@ -21,7 +21,7 @@
 ![Workflow](/readme_assets/workflow.png)
 
 ## Docker container
-- Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/CONFIG.yaml)) with the image and (an optional) whitelist of license plates
+- Takes a mounted input/output volume (defined in a [`CONFIG.yaml`](https://github.com/CourtVision/out-of-sight/blob/main/io/CONFIG.yaml) with the image and (an optional) whitelist of license plates
 - Arguments include:
     -  task(s) to be executed (`-w`), `choices=['all', 'OCR', 'Whitelist', 'Anonymize']`
     -  minimum aspect ratio used to detect and filter rectangular license plates (`-minAR`), `default=2`
@@ -35,6 +35,9 @@
 - `docker build -f Dockerfile -t outsight-image --no-cache .`
 - `docker run -v io-volume:/./io --name outsight-container outsight-image -w all --no-debug`
 
+## Module documentation
+[`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
+
 ## Future Azure Architecture
 ![Azure Architecture](/readme_assets/architecture.png)
 #### This section is baed on the blog posts of Johan Hostens[^3] & Dr Basim Majeed[^4]
@@ -44,10 +47,7 @@ The third step is about building the workflow using Azure Logic Apps. With the r
 
 - There are many trigger types that can be used to start the Logic App including webhooks, http notifications and timed events, allowing the workflow to integrate the Python script execution with external events. When the Logic App receives the trigger event it creates a Container Group and a Container inside the group based on the image retrieved from the registry. A loop is then started that monitors the state of the Container Group until it has succeeded (indicating that the Python script has completed). The last step is to delete the Container Group.[^3] 
 
-- We’ll use an Azure key vault to store the primary key of storage account and a managed identity to authenticate the Azure Container Instance with the key vault. During local development, we’ll use environment variables for authentication. The Azure file share will be mounted in the container. The files within this file share will appear as if they were local. It is important to know that files within an ACI are not persistent, but can be made persistent by mounting an Azure file share and storing the files in the mounted directory.[^4]
-
-## Module documentation
-[`Docs`](https://rawcdn.githack.com/CourtVision/out-of-sight/master/outsight/docs/index.html)
+- We’ll use an Azure key vault to store the primary key of storage account and a managed identity to authenticate the Azure Container Instance with the key vault. During local development, we’ll use environment variables for authentication. The Azure file share will be mounted in the container. The files within this file share will appear as if they were local. It is important to know that files within an ACI are not persistent, but can be made persistent by mounting an Azure file share and storing the files in the mounted directory.[^4
 
 ## Environment setup
 #### if Windows:
