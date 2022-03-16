@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     ## Load the config file ##
     try:
-        p = Path(os.path.join(Path(__file__).parents[1], 'CONFIG.yaml')).absolute()
+        p = Path(os.path.join(Path(__file__).parents[1], 'io/CONFIG.yaml')).absolute()
         config = parse_configuration(p) 
 
         input = config.get("INPUT")

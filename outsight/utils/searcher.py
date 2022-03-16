@@ -62,11 +62,11 @@ class PlateSearcher():
 
         if min_d <= self.threshold:
             with open(self.output_search, 'w') as f:
-                print('[INFO] License plate %s identified with dissimilarity of %d to be a match for %s' % (min_d_key, min_d, plate),
+                print('[INFO] License plate %s identified with dissimilarity of %d to be a match for %s --> ACCESS GRANTED!' % (min_d_key, min_d, plate),
                 file=f)
                 logger.info("License plate identified --> ACCES GRANTED!")          
         else:
             with open(self.output_search, 'w') as f:
-                print('[INFO] No License plate identified with min dissimilarity of %d to be a match for %s' % (self.threshold, plate),
+                print('[INFO] No License plate identified with min dissimilarity of %d to be a match for %s --> ACCESS DENIED!' % (self.threshold, plate),
                 file=f)
                 logger.info("License plate not identified for the Whitelist --> ACCES DENIED!")    
