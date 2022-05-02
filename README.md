@@ -1,6 +1,6 @@
 # `out-of-sight`:eyes:
 ## This is a pet project for fun :blush:
-- Using CV & NLP 
+- Using CV & OCR 
     - to recognize & anonymize license plates 
     - and to search, find, and match the plate text within a whitlelist DB.
 - Main purpose is to create a containarized Python app with decomposed tasks and a flexible workflow.
