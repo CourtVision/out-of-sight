@@ -144,9 +144,9 @@ class PlateLocator:
 					roi = clear_border(roi)
 				# display any debugging information and then break
 				# from the loop early since we have found the license plate region
-				if self.debug:
-					debug_imshow(title="License Plate", image=licensePlate)
-					debug_imshow(title="ROI", image=roi, waitKey=True)
+				#if self.debug:
+				#	debug_imshow(title="License Plate", image=licensePlate)
+				#	debug_imshow(title="ROI", image=roi, waitKey=True)
 				break
 		try:
 			licensePlate
