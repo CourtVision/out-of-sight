@@ -52,7 +52,7 @@ if __name__ == '__main__':
             
     ## Setup workflow ##
 
-    # DO get training data and save it
+    # DO get data and save it
     class GetData(d6tflow.tasks.TaskPickle):
         """
         Flow step data read from disk.
