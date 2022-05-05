@@ -64,8 +64,8 @@ class PlateLocator:
 		if self.debug:
 			debug_imshow(title="Gray filtered", image=gray)
 		
-		# Any edges with intensity gradient more than maxVal are sure to be edges 
-		# and those below minVal are sure to be non-edges, so discarded. 
+		# Any edges with intensity gradient (directional change in the intensity or color in an image) more than maxVal
+		# are sure to be edges and those below minVal are sure to be non-edges, so discarded. 
 		# Those who lie between these two thresholds are classified edges or non-edges based on their connectivity. 
 		# If they are connected to "sure-edge" pixels, they are considered to be part of edges.
 		# https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html
@@ -75,7 +75,7 @@ class PlateLocator:
 		
 		# A curve joining all the continuous points (along the boundary), having same color or intensity.
 		# RETR_LIST: retrieve the contours but does not create any parent-child relationship.
-		# CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected.
+		# CHAIN_APPROX_SIMPLE: remove all the redundant points on the contours detected (e.g. keep only 4).
 		contours = findContours(edged.copy(), RETR_TREE, CHAIN_APPROX_SIMPLE)
 		contours = imutils.grab_contours(contours)
 		candidates = sorted(contours, key=contourArea, reverse=True)[:keep]
@@ -117,9 +117,12 @@ class PlateLocator:
 			peri = arcLength(c, closed=True)
 			# The process of approximation of a shape of contour to another shape consisting of a lesser number
 			# of vertices in such a way that the distance between the contours of shapes is equal to the 
-			# specified precision or lesser than the specified precision is called approximation of a shape of the contour.
+			# specified precision or lesser is called approximation of a shape of the contour.
 			# https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm
+			# A curve composed of line segments (which is also called a Polyline in some contexts), to a curve with fewer points.
+			# The simplified curve consists of a subset of the points that defined the original curve.
 			# Epsilon: specifying the approximation accuracy, i.e. maximum distance between the original curve and its approximation 
+			# https://en.wikipedia.org/wiki/Hausdorff_distance & http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/98/normand/main.html
 			approx = approxPolyDP(c, epsilon=0.010 * peri, closed=True)
 
 			# Computes the bounding box of the contour and then use
