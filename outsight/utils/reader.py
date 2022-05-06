@@ -50,6 +50,7 @@ class PlateReader:
 		lpText = None
 		if roi is not None:
 			# OCR the license plate
+			# https://static.googleusercontent.com/media/research.google.com/de//pubs/archive/33418.pdf
 			options = self._build_tesseract_options()
 			lpText = image_to_string(roi, config=options)
 			if self.debug:
