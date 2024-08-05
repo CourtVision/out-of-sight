@@ -40,7 +40,7 @@
 
 ## Future Azure Architecture
 ![Azure Architecture](/readme_assets/architecture.png)
-#### This section is baed on the blog posts of Johan Hostens[^3] & Dr Basim Majeed[^4]
+#### This section is based on the blog posts of Johan Hostens[^3] & Dr Basim Majeed[^4]
 
 - After building the Docker image of the Python script, the second step involves registering and uploading the container image with the Azure Container Registry. 
 The third step is about building the workflow using Azure Logic Apps. With the recent addition of Container Instance Group connectors, Logic Apps can control the creation of a Container Instances inside container groups, monitor the container state to detect success of execution and then delete the container and the associated container group. By ensuring that the container is only active for the amount of time necessary to complete the task, charges are minimised.
